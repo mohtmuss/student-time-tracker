@@ -1,92 +1,21 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 function App() {
-  const [code, setCode] = useState("");
-  const [verified, setVerified] = useState(false);
-  const [studentName, setStudentName] = useState("");
-  const [message, setMessage] = useState("");
-
-  // VERIFY CODE
-  const verifyCode = () => {
-    fetch("http://127.0.0.1:5000/verify-code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ code: code })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.name) {
-        setVerified(true);
-        setStudentName(data.name);
-        setMessage("");
-      } else {
-        setMessage("Invalid code");
-        setVerified(false);
-      }
-    });
-  };
-
-  // CLOCK IN
-  const clockIn = () => {
-    fetch("http://127.0.0.1:5000/clock-in", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ code: code })
-    })
-    .then(res => res.json())
-    .then(data => setMessage(data.message));
-  };
-
-  // CLOCK OUT
-  const clockOut = () => {
-    fetch("http://127.0.0.1:5000/clock-out", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ code: code })
-    })
-    .then(res => res.json())
-    .then(data => setMessage(data.message));
-  };
+  const [studentId, setStudentId] = useState('');
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
+    <div>
+      <h1>Student Time Tracker</h1>
 
-      <h1>Student Clock System</h1>
+      <input
+        type="text"
+        placeholder="Enter Student ID"
+        value={studentId}
+        onChange={(e) => setStudentId(e.target.value)}
+      />
 
-      {!verified && (
-        <>
-          <input
-            placeholder="Enter your code (MM26)"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-          />
-          <br /><br />
-
-          <button onClick={verifyCode}>Verify Code</button>
-
-          <p style={{ color: "red" }}>{message}</p>
-        </>
-      )}
-
-      {verified && (
-        <>
-          <h2>Welcome, {studentName}</h2>
-
-          <button onClick={clockIn}>Clock In</button>
-          <br /><br />
-
-          <button onClick={clockOut}>Clock Out</button>
-
-          <p>{message}</p>
-        </>
-      )}
-
+      <button disabled={studentId === ''}>Clock In</button>
+      <button disabled={studentId === ''}>Clock Out</button>
     </div>
   );
 }
