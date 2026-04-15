@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import StudentsPage from './StudentsPages';
+import ChatBot from './ChatBot';
 
 function Dashboard() {
   const [activePage, setActivePage] = useState('home');
@@ -16,34 +17,7 @@ function Dashboard() {
       </div>
 
       <div className="content">
-        {activePage === 'home' && 
-
-         <div>
-    <h1>Welcome to the Dashboard!</h1>
-    <div className="cards">
-      <div className="card">
-        <p>Total Students</p>
-        <h2>0</h2>
-      </div>
-      <div className="card">
-        <p>Clocked In Now</p>
-        <h2>0</h2>
-      </div>
-      <div className="card">
-        <p>Total Hours Today</p>
-        <h2>0</h2>
-      </div>
-    </div>
-  </div>
-
-
-
-
-
-
-
-
-        }
+        {activePage === 'home' && <ChatBot />}
         {activePage === 'students' && <StudentsPage />}
         {activePage === 'attendance' && <h1>Attendance</h1>}
         {activePage === 'reports' && <h1>Reports</h1>}
