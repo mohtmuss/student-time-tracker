@@ -3,6 +3,7 @@ import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
 import AttendancePage from './AttendancePage';
 import ReportsPage from './Reportspage';
+import SettingsPage from './SettingsPage'
 function Dashboard() {
   const [activePage, setActivePage] = useState('home');
 
@@ -22,7 +23,7 @@ function Dashboard() {
         {activePage === 'students' && <StudentsPage />}
         {activePage === 'attendance' && <AttendancePage />}
         {activePage === 'reports' && <ReportsPage />}
-        {activePage === 'settings' && <h1>Settings</h1>}
+        {activePage === 'settings' && < SettingsPage/>}
       </div>
     </div>
   );

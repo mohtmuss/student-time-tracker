@@ -42,7 +42,7 @@ function ClockIn() {
         setMessage('');
       }, 3000);
     } else {
-      setMessage('❌ Invalid Student ID!');
+      setMessage('❌ ' + (data.error || 'Invalid Student ID!'));
       setTimeout(() => {
         setMessage('');
         setStudentId('');

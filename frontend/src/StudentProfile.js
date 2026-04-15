@@ -36,14 +36,27 @@ function StudentProfile({ student, onBack }) {
     return hours + ' hrs';
   }
 
-  function calculateWeeklyTotal() {
-    const total = history.reduce((sum, log) => {
-      if (!log.clock_out) return sum;
-      const diff = new Date(log.clock_out) - new Date(log.clock_in);
+ function calculateWeeklyTotal() {
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  const total = history.reduce((sum, log) => {
+    if (!log.clock_out) return sum;
+    const clockIn = new Date(log.clock_in);
+    if (clockIn >= startOfWeek && clockIn <= endOfWeek) {
+      const diff = new Date(log.clock_out) - clockIn;
       return sum + diff / 1000 / 60 / 60;
-    }, 0);
-    return total.toFixed(2);
-  }
+    }
+    return sum;
+  }, 0);
+  return total.toFixed(2);
+}
 
   const weeklyTotal = calculateWeeklyTotal();
   const meetsRequirement = weeklyTotal >= 6;

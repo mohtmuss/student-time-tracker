@@ -133,9 +133,20 @@ def get_students():
 def clock_in():
     data = request.get_json()
     student_id = data.get('student_id')
+
     student = Student.query.filter_by(student_id=student_id).first()
     if not student:
         return jsonify({'error': 'Student not found'}), 404
+
+    # Check if already clocked in
+    existing_log = TimeLog.query.filter_by(
+        student_id=student_id,
+        clock_out=None
+    ).first()
+    
+    if existing_log:
+        return jsonify({'error': 'Student already clocked in!'}), 400
+
     log = TimeLog(
         student_id=student_id,
         clock_in=datetime.now(),
@@ -265,27 +276,36 @@ For all other questions answer normally.""",
             return jsonify({'response': f"🔴 Successfully clocked out **{student_id}**!"})
         except Exception as e:
             return jsonify({'response': f"❌ Error clocking out: {str(e)}"})
-
     if 'CLOCK_IN:' in response_text:
-        try:
-            json_str = response_text.split('CLOCK_IN:')[1].strip()
-            clock_data = json.loads(json_str)
-            student_id = clock_data['student_id']
-            student = Student.query.filter_by(student_id=student_id).first()
-            if not student:
-                return jsonify({'response': f"❌ Student {student_id} not found!"})
-            log = TimeLog(
-                student_id=student_id,
-                clock_in=datetime.now(),
-                date=date.today()
-            )
-            db.session.add(log)
-            db.session.commit()
-            return jsonify({'response': f"🟢 Successfully clocked in **{student_id}**!"})
-        except Exception as e:
-            return jsonify({'response': f"❌ Error clocking in: {str(e)}"})
+      try:
+        json_str = response_text.split('CLOCK_IN:')[1].strip()
+        clock_data = json.loads(json_str)
+        student_id = clock_data['student_id']
 
-    return jsonify({'response': response_text})
+        student = Student.query.filter_by(student_id=student_id).first()
+        if not student:
+            return jsonify({'response': f"❌ Student {student_id} not found!"})
+
+        # Check if already clocked in
+        existing_log = TimeLog.query.filter_by(
+            student_id=student_id,
+            clock_out=None
+        ).first()
+
+        if existing_log:
+            return jsonify({'response': f"⚠️ **{student.first_name} {student.last_name}** is already clocked in! They need to clock out first."})
+
+        log = TimeLog(
+            student_id=student_id,
+            clock_in=datetime.now(),
+            date=date.today()
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'response': f"🟢 Successfully clocked in **{student.first_name} {student.last_name}** ({student_id})!"})
+      except Exception as e:
+        return jsonify({'response': f"❌ Error clocking in: {str(e)}"})
 @app.route('/attendance-data', methods=['GET'])
 def attendance_data():
     from collections import defaultdict
@@ -327,5 +347,16 @@ def student_weekly_progress(student_id):
     result = [{'week': week, 'hours': round(weekly_hours[week], 2)} for week in sorted_weeks]
     
     return jsonify(result)
+@app.route('/erase-timelogs', methods=['POST'])
+def erase_timelogs():
+    data = request.get_json()
+    access_key = data.get('access_key')
+    
+    if access_key != 'mussa212634':
+        return jsonify({'error': 'Invalid access key!'}), 403
+    
+    TimeLog.query.delete()
+    db.session.commit()
+    return jsonify({'message': 'All time logs erased successfully!'}), 200
 if __name__ == '__main__':
     app.run(debug=True)
