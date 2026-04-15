@@ -1,48 +1,49 @@
-from flask import Flask, request, jsonify
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
+app = Flask(__name__)
 
-app  = Flask(__name__)
+# Database config
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://tracker_admin:mussa212634@localhost/student_tracker'
+app.config['JWT_SECRET_KEY'] = 'supersecretkey'
+
+# Initialize extensions
+db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
 CORS(app)
-students = []
 
+# Database Models
+class Teacher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
 
-@app.route("/")
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(10), unique=True, nullable=False)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    graduation_year = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+
+class TimeLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.String(10), nullable=False)
+    clock_in = db.Column(db.DateTime, nullable=True)
+    clock_out = db.Column(db.DateTime, nullable=True)
+    date = db.Column(db.Date, nullable=False)
+
+with app.app_context():
+    db.create_all()
+
+@app.route('/')
 def home():
-    return "Backend is working"
+    return {'message': 'Student Time Tracker API is running!'}
 
-
-@app.route("/add-student", methods = ["POST"])
-def add_student():
-    data = request.get_json()
-    
-    print("Data Reseived", data)
-    name = data["name"]
-    email = data["email"]
-    grad_year = data["grad_year"]
-    
-    ### generate code
-    parts = name.split()
-    code = (parts[0][0] + parts[-1][0] + str(grad_year)[-2:]).upper()
-    
-    student = {
-        "name" : name,
-        "email" : email,
-        "grad_year": grad_year,
-        "code" : code
-    }
-    students.append(student)
-    return jsonify(student)
-
-@app.route("/verify-code", methods = ["POST"])
-def verify_code():
-    data = request.get_jason()
-    code = data["code"]
-    
-    for student in students:
-        if student["code"] == code:
-            return jsonify({"name": student["name"]
-                            })
-    return jsonify({"message": "Invalid code "}), 404
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)

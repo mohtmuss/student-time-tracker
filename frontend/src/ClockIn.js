@@ -2,7 +2,7 @@ import { useState } from 'react';
 import "./App.css"
 
 
-function App() {
+function ClockIn() {
   const [studentId, setStudentId] = useState('');
   const [message, setMessage] = useState('');
   const [flash, setFlash] = useState('');
@@ -74,4 +74,4 @@ function handleClockOut(){
 
 
 
-export default App;
+export default ClockIn;
