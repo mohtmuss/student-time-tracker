@@ -286,6 +286,46 @@ For all other questions answer normally.""",
             return jsonify({'response': f"❌ Error clocking in: {str(e)}"})
 
     return jsonify({'response': response_text})
+@app.route('/attendance-data', methods=['GET'])
+def attendance_data():
+    from collections import defaultdict
+    
+    logs = TimeLog.query.all()
+    
+    # Hours per day of week
+    day_hours = defaultdict(float)
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    for log in logs:
+        if log.clock_in and log.clock_out:
+            diff = (log.clock_out - log.clock_in).seconds / 3600
+            day_name = days[log.clock_in.weekday()]
+            day_hours[day_name] += diff
 
+    day_data = [{'day': day, 'hours': round(day_hours[day], 2)} for day in days]
+
+    return jsonify({'day_data': day_data})
+
+
+@app.route('/student-weekly-progress/<student_id>', methods=['GET'])
+def student_weekly_progress(student_id):
+    from collections import defaultdict
+    
+    logs = TimeLog.query.filter_by(student_id=student_id).all()
+    
+    weekly_hours = defaultdict(float)
+    
+    for log in logs:
+        if log.clock_in and log.clock_out:
+            diff = (log.clock_out - log.clock_in).seconds / 3600
+            # Get week number of the year
+            week = log.clock_in.strftime('Week %U')
+            weekly_hours[week] += diff
+    
+    # Sort by week
+    sorted_weeks = sorted(weekly_hours.keys())
+    result = [{'week': week, 'hours': round(weekly_hours[week], 2)} for week in sorted_weeks]
+    
+    return jsonify(result)
 if __name__ == '__main__':
     app.run(debug=True)

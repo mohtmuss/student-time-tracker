@@ -211,3 +211,112 @@ button:disabled {
   font-size: 16px;
   width: auto;
 }
+
+.attendance {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.attendance-cards {
+  display: flex;
+  gap: 20px;
+}
+
+.att-card {
+  flex: 1;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.att-card p {
+  color: #aaa;
+  margin: 0;
+}
+
+.att-card h2 {
+  font-size: 48px;
+  margin: 8px 0 0 0;
+  color: white;
+}
+
+.att-card.purple {
+  background-color: #1e1e3a;
+  border-left: 4px solid #5865F2;
+}
+
+.att-card.green {
+  background-color: #1a3a1a;
+  border-left: 4px solid #2ecc71;
+}
+
+.att-card.red {
+  background-color: #3a1a1a;
+  border-left: 4px solid #e74c3c;
+}
+
+.att-section {
+  background-color: #1e1e3a;
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.att-section h2 {
+  color: white;
+  margin-bottom: 20px;
+}
+
+.att-student {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #2d2d4a;
+  color: white;
+}
+
+.search-wrapper {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #1e1e3a;
+  border: 1px solid #5865F2;
+  border-radius: 8px;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestion-item:hover {
+  background-color: #5865F2;
+}
+.download-btn {
+  background-color: #5865F2;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.download-btn:hover {
+  background-color: #4752c4;
+}

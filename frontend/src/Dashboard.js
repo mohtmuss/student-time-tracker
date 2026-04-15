@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
-
+import AttendancePage from './AttendancePage';
+import ReportsPage from './Reportspage';
 function Dashboard() {
   const [activePage, setActivePage] = useState('home');
 
@@ -19,8 +20,8 @@ function Dashboard() {
       <div className="content">
         {activePage === 'home' && <ChatBot />}
         {activePage === 'students' && <StudentsPage />}
-        {activePage === 'attendance' && <h1>Attendance</h1>}
-        {activePage === 'reports' && <h1>Reports</h1>}
+        {activePage === 'attendance' && <AttendancePage />}
+        {activePage === 'reports' && <ReportsPage />}
         {activePage === 'settings' && <h1>Settings</h1>}
       </div>
     </div>
