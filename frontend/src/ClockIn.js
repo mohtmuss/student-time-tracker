@@ -24,35 +24,57 @@ function ClockIn() {
   }
 
   async function handleClockIn() {
-    playSound('in');
-    setFlash('green');
-    setMessage('✅ Clocked in: ' + studentId);
-    await fetch('http://127.0.0.1:5000/clock-in', {
+    const response = await fetch('http://127.0.0.1:5000/clock-in', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId })
     });
-    setTimeout(() => {
-      setFlash('');
-      setStudentId('');
-      setMessage('');
-    }, 3000);
+
+    const data = await response.json();
+
+    if (response.ok) {
+      playSound('in');
+      setFlash('green');
+      setMessage('✅ Clocked in: ' + studentId);
+      setTimeout(() => {
+        setFlash('');
+        setStudentId('');
+        setMessage('');
+      }, 3000);
+    } else {
+      setMessage('❌ Invalid Student ID!');
+      setTimeout(() => {
+        setMessage('');
+        setStudentId('');
+      }, 3000);
+    }
   }
 
   async function handleClockOut() {
-    playSound('out');
-    setFlash('red');
-    setMessage('🔴 Clocked out: ' + studentId);
-    await fetch('http://127.0.0.1:5000/clock-out', {
+    const response = await fetch('http://127.0.0.1:5000/clock-out', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId })
     });
-    setTimeout(() => {
-      setFlash('');
-      setStudentId('');
-      setMessage('');
-    }, 3000);
+
+    const data = await response.json();
+
+    if (response.ok) {
+      playSound('out');
+      setFlash('red');
+      setMessage('🔴 Clocked out: ' + studentId);
+      setTimeout(() => {
+        setFlash('');
+        setStudentId('');
+        setMessage('');
+      }, 3000);
+    } else {
+      setMessage('❌ Invalid Student ID or not clocked in!');
+      setTimeout(() => {
+        setMessage('');
+        setStudentId('');
+      }, 3000);
+    }
   }
 
   return (
@@ -68,7 +90,7 @@ function ClockIn() {
         <button disabled={studentId === ''} onClick={handleClockIn}>Clock In</button>
         <button disabled={studentId === ''} onClick={handleClockOut}>Clock Out</button>
       </div>
-      <p>{message}</p>
+      <p style={{color: message.includes('❌') ? 'red' : 'gold'}}>{message}</p>
     </div>
   );
 }

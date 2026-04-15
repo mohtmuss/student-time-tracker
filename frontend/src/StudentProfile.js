@@ -9,6 +9,26 @@ function StudentProfile({ student, onBack }) {
       .then(data => setHistory(data));
   }, [student]);
 
+  function formatTime(dateTimeStr) {
+    if (!dateTimeStr) return '—';
+    const date = new Date(dateTimeStr);
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
   function calculateHours(clockIn, clockOut) {
     if (!clockOut) return 'In progress';
     const diff = new Date(clockOut) - new Date(clockIn);
@@ -64,9 +84,9 @@ function StudentProfile({ student, onBack }) {
         <tbody>
           {history.map(log => (
             <tr key={log.id}>
-              <td>{log.date}</td>
-              <td>{log.clock_in}</td>
-              <td>{log.clock_out || '—'}</td>
+              <td>{formatDate(log.date)}</td>
+              <td>{formatTime(log.clock_in)}</td>
+              <td>{formatTime(log.clock_out)}</td>
               <td>{calculateHours(log.clock_in, log.clock_out)}</td>
               <td>{log.clock_out ? '✅ Done' : '🟢 Active'}</td>
             </tr>

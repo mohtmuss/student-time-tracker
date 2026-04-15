@@ -9,11 +9,17 @@ function StudentsPage() {
   const [graduationYear, setGraduationYear] = useState('');
   const [status, setStatus] = useState('freshman');
   const [students, setStudents] = useState([]);
+  const [clockedInIds, setClockedInIds] = useState([]);
 
   useEffect(() => {
     fetchStudents();
+    fetchClockedIn();
   }, []);
-
+ async function fetchClockedIn() {
+  const response = await fetch('http://127.0.0.1:5000/clocked-in-students');
+  const data = await response.json();
+  setClockedInIds(data);
+}
   async function fetchStudents() {
     const response = await fetch('http://127.0.0.1:5000/students', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
@@ -84,11 +90,13 @@ function StudentsPage() {
         <button onClick={() => setView('add')}>+ Add Student</button>
       </div>
       {students.map(student => (
-        <div key={student.id} className="student-card" onClick={() => setView(student)}>
-          <span className="green-circle"></span>
-          <strong>{student.first_name} {student.last_name}</strong>
-        </div>
-      ))}
+  <div key={student.id} className="student-card" onClick={() => setView(student)}>
+    <span className="green-circle" style={{
+      backgroundColor: clockedInIds.includes(student.student_id) ? '#2ecc71' : '#e74c3c'
+    }}></span>
+    <strong>{student.first_name} {student.last_name}</strong>
+  </div>
+))}
     </div>
   );
 }
