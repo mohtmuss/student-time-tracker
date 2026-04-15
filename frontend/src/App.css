@@ -50,3 +50,106 @@ button:disabled {
   color: darkgrey;
   cursor: not-allowed;
 }
+
+.dashboard {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  background-color: #0d0d1a;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #12122a;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 8px;
+}
+
+.sidebar h2 {
+  color: white;
+  margin-bottom: 30px;
+  font-size: 18px;
+}
+
+.sidebar button {
+  background-color: transparent;
+  color: #aaaacc;
+  border: none;
+  text-align: left;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.sidebar button:hover {
+  background-color: #5865F2;
+  color: white;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  color: white;
+  background-color: #0d0d1a;
+  overflow-y: auto;
+}
+.content h1 {
+  color: white;
+  margin-bottom: 30px;
+}
+
+.students-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.student-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background-color: #1e1e3a;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.green-circle {
+  width: 12px;
+  height: 12px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  display: inline-block;
+}
+.student-card {
+  cursor: pointer;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.history-table th {
+  background-color: #5865F2;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.history-table td {
+  padding: 12px;
+  border-bottom: 1px solid #1e1e3a;
+  color: white;
+}
+
+.history-table tr:hover {
+  background-color: #1e1e3a;
+}
