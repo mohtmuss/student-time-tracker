@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-
+import remarkGfm from 'remark-gfm';
 
 function ChatBot() {
   const [messages, setMessages] = useState([
@@ -18,15 +18,16 @@ function ChatBot() {
       .then(data => setStudents(data));
   }, []);
 
-  async function sendMessage() {
-    if (!input.trim()) return;
+ async function sendMessage() {
+  if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setInput('');
-    setLoading(true);
+  const userMessage = { role: 'user', content: input };
+  const updatedMessages = [...messages, userMessage];
+  setMessages(updatedMessages);
+  setInput('');
+  setLoading(true);
 
+  try {
     const response = await fetch('http://127.0.0.1:5000/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,12 +40,19 @@ function ChatBot() {
     const data = await response.json();
     const assistantMessage = {
       role: 'assistant',
-      content: data.response
+      content: data.response || "I'm sorry, I can only help with student time tracking information!"
     };
-
     setMessages([...updatedMessages, assistantMessage]);
+  } catch (error) {
+    const errorMessage = {
+      role: 'assistant',
+      content: "I'm sorry, something went wrong. Please try again!"
+    };
+    setMessages([...updatedMessages, errorMessage]);
+  } finally {
     setLoading(false);
   }
+}
 
   return (
     <div className="chatbot">
@@ -52,7 +60,9 @@ function ChatBot() {
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`chat-message ${msg.role}`}>
-            <ReactMarkdown>{msg.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {msg.content}
+                </ReactMarkdown>
           </div>
         ))}
         {loading && <div className="chat-message assistant"><p>Thinking...</p></div>}

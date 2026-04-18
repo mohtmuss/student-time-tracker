@@ -78,11 +78,12 @@ button:disabled {
   color: #aaaacc;
   border: none;
   text-align: left;
-  padding: 12px 16px;
+  padding: 30px 40px;
   cursor: pointer;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 20px;
   width: 100%;
+  font-weight: 500;
 }
 
 .sidebar button:hover {
@@ -319,4 +320,49 @@ button:disabled {
 
 .download-btn:hover {
   background-color: #4752c4;
+}
+.chat-message table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.chat-message th {
+  background-color: #5865F2;
+  color: white;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.chat-message td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #2d2d4a;
+  color: white;
+}
+
+.chat-message tr:hover {
+  background-color: #2d2d4a;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  width: 220px;
+  background: #0e1525;
+  border-right: 0.5px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.dashboard {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background: #080c14;
 }
