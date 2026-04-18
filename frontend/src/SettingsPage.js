@@ -13,7 +13,7 @@ function SettingsPage() {
       body: JSON.stringify({ access_key: accessKey })
     });
 
-    const data = await response.json();
+    await res.json();
 
     if (response.ok) {
       setMessage('✅ All time logs erased successfully!');
