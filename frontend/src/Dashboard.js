@@ -11,10 +11,12 @@ function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      setTeacherEmail(payload.sub || '');
+    if (!token) {
+      window.location.href = '/teacher';
+      return;
     }
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    setTeacherEmail(payload.sub || '');
   }, []);
 
   const handleSignOut = () => {
