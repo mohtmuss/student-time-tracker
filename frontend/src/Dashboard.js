@@ -1,3 +1,4 @@
+import '/App.css'
 import { useState, useEffect } from 'react';
 import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
