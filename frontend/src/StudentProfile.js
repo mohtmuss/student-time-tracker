@@ -4,7 +4,7 @@ function StudentProfile({ student, onBack }) {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/student-history/${student.student_id}`)
+    fetch(`https://student-time-tracker-2.onrender.com/student-history/${student.student_id}`)
       .then(res => res.json())
       .then(data => setHistory(data));
   }, [student]);

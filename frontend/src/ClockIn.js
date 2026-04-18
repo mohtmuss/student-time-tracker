@@ -24,7 +24,7 @@ function ClockIn() {
   }
 
   async function handleClockIn() {
-    const response = await fetch('http://127.0.0.1:5000/clock-in', {
+    const response = await fetch('https://student-time-tracker-2.onrender.com/clock-in', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId })
@@ -51,7 +51,7 @@ function ClockIn() {
   }
 
   async function handleClockOut() {
-    const response = await fetch('http://127.0.0.1:5000/clock-out', {
+    const response = await fetch('https://student-time-tracker-2.onrender.com/clock-out', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId })

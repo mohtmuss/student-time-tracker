@@ -11,7 +11,7 @@ function ChatBot() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/all-student-data', {
+    fetch('https://student-time-tracker-2.onrender.com/all-student-data', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
       .then(res => res.json())
@@ -28,7 +28,7 @@ function ChatBot() {
   setLoading(true);
 
   try {
-    const response = await fetch('http://127.0.0.1:5000/chat', {
+    const response = await fetch('https://student-time-tracker-2.onrender.com/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
