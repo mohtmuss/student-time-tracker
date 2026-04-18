@@ -1,38 +1,368 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  height: 100vh;
+}
+
+h1 {
+  color: gold;
+}
+
+input {
+  padding: 10px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: 2px solid gold;
+  background-color: black;
+  color: gold;
+  text-align: center;
+  margin-bottom: 20px;
+  width: 250px;
+}
+
+button {
+  background-color: gold;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  width: 120px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+button:hover {
+  background-color: darkgoldenrod;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+button:disabled {
+  background-color: grey;
+  color: darkgrey;
+  cursor: not-allowed;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.dashboard {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  background-color: #0d0d1a;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #12122a;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 8px;
+}
+
+.sidebar h2 {
+  color: white;
+  margin-bottom: 30px;
+  font-size: 18px;
+}
+
+.sidebar button {
+  background-color: transparent;
+  color: #aaaacc;
+  border: none;
+  text-align: left;
+  padding: 30px 40px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 20px;
+  width: 100%;
+  font-weight: 500;
+}
+
+.sidebar button:hover {
+  background-color: #5865F2;
+  color: white;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  color: white;
+  background-color: #0d0d1a;
+  overflow-y: auto;
+}
+.content h1 {
+  color: white;
+  margin-bottom: 30px;
+}
+
+.students-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.student-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background-color: #1e1e3a;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.green-circle {
+  width: 12px;
+  height: 12px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  display: inline-block;
+}
+.student-card {
+  cursor: pointer;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.history-table th {
+  background-color: #5865F2;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.history-table td {
+  padding: 12px;
+  border-bottom: 1px solid #1e1e3a;
+  color: white;
+}
+
+.history-table tr:hover {
+  background-color: #1e1e3a;
+}
+.chatbot {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.chat-message {
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 70%;
+}
+
+.chat-message.user {
+  background-color: #5865F2;
+  color: white;
+  align-self: flex-end;
+}
+
+.chat-message.assistant {
+  background-color: #1e1e3a;
+  color: white;
+  align-self: flex-start;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid #5865F2;
+  background-color: #1e1e3a;
+  color: white;
+  font-size: 16px;
+}
+
+.chat-input button {
+  background-color: #5865F2;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: auto;
+}
+
+.attendance {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.attendance-cards {
+  display: flex;
+  gap: 20px;
+}
+
+.att-card {
+  flex: 1;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.att-card p {
+  color: #aaa;
+  margin: 0;
+}
+
+.att-card h2 {
+  font-size: 48px;
+  margin: 8px 0 0 0;
+  color: white;
+}
+
+.att-card.purple {
+  background-color: #1e1e3a;
+  border-left: 4px solid #5865F2;
+}
+
+.att-card.green {
+  background-color: #1a3a1a;
+  border-left: 4px solid #2ecc71;
+}
+
+.att-card.red {
+  background-color: #3a1a1a;
+  border-left: 4px solid #e74c3c;
+}
+
+.att-section {
+  background-color: #1e1e3a;
+  padding: 24px;
+  border-radius: 12px;
+}
+
+.att-section h2 {
+  color: white;
+  margin-bottom: 20px;
+}
+
+.att-student {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #2d2d4a;
+  color: white;
+}
+
+.search-wrapper {
+  position: relative;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #1e1e3a;
+  border: 1px solid #5865F2;
+  border-radius: 8px;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestion-item:hover {
+  background-color: #5865F2;
+}
+.download-btn {
+  background-color: #5865F2;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.download-btn:hover {
+  background-color: #4752c4;
+}
+.chat-message table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.chat-message th {
+  background-color: #5865F2;
+  color: white;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.chat-message td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #2d2d4a;
+  color: white;
+}
+
+.chat-message tr:hover {
+  background-color: #2d2d4a;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  width: 220px;
+  background: #0e1525;
+  border-right: 0.5px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.dashboard {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  background: #080c14;
 }
