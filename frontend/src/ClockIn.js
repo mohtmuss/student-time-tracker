@@ -57,7 +57,7 @@ function ClockIn() {
       body: JSON.stringify({ student_id: studentId })
     });
 
-    await res.json();
+    
 
     if (response.ok) {
       playSound('out');
