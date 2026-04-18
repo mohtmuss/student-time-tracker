@@ -82,7 +82,8 @@ function ClockIn() {
     padding: '0 16px 0 44px',
     fontSize: 16, fontWeight: 600,
     color: '#fff', letterSpacing: '0.1em',
-    outline: 'none', fontFamily: 'inherit'
+    outline: 'none', fontFamily: 'inherit',
+    boxSizing: 'border-box'
   };
 
   const btnBase = {
@@ -129,7 +130,8 @@ function ClockIn() {
         borderRadius: 16, padding: '32px 28px',
         width: '100%', maxWidth: 380,
         display: 'flex', flexDirection: 'column',
-        alignItems: 'center', gap: 20
+        alignItems: 'center', gap: 20,
+        overflow: 'hidden'
       }}>
         {/* Clock */}
         <div style={{ fontSize: 32, fontWeight: 700, color: '#fff', letterSpacing: '0.04em' }}>
