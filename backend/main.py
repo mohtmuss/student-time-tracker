@@ -374,15 +374,18 @@ def erase_timelogs():
     TimeLog.query.delete()
     db.session.commit()
     return jsonify({'message': 'All time logs erased successfully!'}), 200
-@app.route('/seed-test-data', methods=['POST'])
+
 
 @app.route('/manual-clock', methods=['POST'])
 def manual_clock():
     data = request.get_json()
     student_id = data.get('student_id')
-    date_str = data.get('date')
     clock_in_str = data.get('clock_in')
     clock_out_str = data.get('clock_out')
+    date_str = date.today().strftime('%Y-%m-%d')
+
+    if not student_id or not clock_in_str or not clock_out_str:
+        return jsonify({'error': 'All fields are required'}), 400
 
     student = Student.query.filter_by(student_id=student_id).first()
     if not student:
@@ -400,5 +403,6 @@ def manual_clock():
     db.session.add(log)
     db.session.commit()
     return jsonify({'message': 'Entry added!'}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
