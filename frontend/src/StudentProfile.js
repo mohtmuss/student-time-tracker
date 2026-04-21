@@ -89,7 +89,6 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     const data = await res.json();
     if (res.ok) {
       setEntryMessage('✅ Entry added!');
-      setEntryDate('');
       setEntryClockIn('');
       setEntryClockOut('');
       fetchHistory();
