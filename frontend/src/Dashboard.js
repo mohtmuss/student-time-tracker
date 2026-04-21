@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import '/App.css'
-=======
 import './App.css'
->>>>>>> 8e926f5 (add style)
 import { useState, useEffect } from 'react';
 import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
