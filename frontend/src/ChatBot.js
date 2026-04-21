@@ -11,7 +11,7 @@ function ChatBot() {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    fetch('https://student-time-tracker-2.onrender.com/all-student-data', {
+    fetch(`${process.env.REACT_APP_API_URL}/all-student-data`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
       .then(res => res.json())
@@ -28,7 +28,7 @@ function ChatBot() {
   setLoading(true);
 
   try {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/chat', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

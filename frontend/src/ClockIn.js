@@ -23,6 +23,17 @@ function ClockIn() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // keep Render server alive
+    const ping = () => {
+      fetch(`${process.env.REACT_APP_API_URL}/`)
+        .catch(() => {});
+    };
+    ping();
+    const interval = setInterval(ping, 10 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   function playSound(type) {
     const context = new AudioContext();
     const oscillator = context.createOscillator();
@@ -43,7 +54,7 @@ function ClockIn() {
   }
 
   async function handleClockIn() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/clock-in', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/clock-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId })
@@ -59,7 +70,7 @@ function ClockIn() {
   }
 
   async function handleClockOut() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/clock-out', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/clock-out`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ student_id: studentId })

@@ -7,7 +7,7 @@ function SettingsPage() {
   const [error, setError] = useState('');
 
   async function handleErase() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/erase-timelogs', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/erase-timelogs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ access_key: accessKey })

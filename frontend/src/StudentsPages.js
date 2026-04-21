@@ -16,12 +16,12 @@ function StudentsPage() {
     fetchClockedIn();
   }, []);
  async function fetchClockedIn() {
-  const response = await fetch('https://student-time-tracker-2.onrender.com/clocked-in-students');
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/clocked-in-students`);
   const data = await response.json();
   setClockedInIds(data);
 }
   async function fetchStudents() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/students', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/students`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     });
     const data = await response.json();
@@ -29,7 +29,7 @@ function StudentsPage() {
   }
 
   async function handleAddStudent() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/add-student', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/add-student`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

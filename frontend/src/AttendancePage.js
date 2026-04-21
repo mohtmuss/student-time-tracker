@@ -15,7 +15,7 @@ function AttendancePage() {
   }, []);
 
   async function fetchStudents() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/students', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/students`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     });
     const data = await response.json();
@@ -23,7 +23,7 @@ function AttendancePage() {
   }
 
   async function fetchClockedIn() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/clocked-in-students');
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/clocked-in-students`);
     const data = await response.json();
     setClockedIn(data);
   }
@@ -33,7 +33,7 @@ function AttendancePage() {
     setSearch(`${student.first_name} ${student.last_name}`);
     setShowSuggestions(false);
 
-    const response = await fetch(`https://student-time-tracker-2.onrender.com/student-history/${student.student_id}`);
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/student-history/${student.student_id}`);
     const data = await response.json();
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
