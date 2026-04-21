@@ -5,11 +5,12 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [clockedIn, setClockedIn] = useState(false);
   const [clockMessage, setClockMessage] = useState('');
 
-  useEffect(() => {
-    fetchHistory();
-    checkClockedIn();
-  }, [student]);
-
+  
+// eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+  fetchHistory();
+  checkClockedIn();
+}, [student]);
   function fetchHistory() {
     fetch(`${process.env.REACT_APP_API_URL}/student-history/${student.student_id}`)
       .then(res => res.json())
