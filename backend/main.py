@@ -13,10 +13,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
-db_url = os.getenv('DATABASE_URL')
-if db_url and 'supabase' in db_url:
-    db_url += '?sslmode=require'
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+
+
+
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 db = SQLAlchemy(app)
