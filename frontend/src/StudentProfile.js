@@ -4,6 +4,11 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [history, setHistory] = useState([]);
   const [clockedIn, setClockedIn] = useState(false);
   const [clockMessage, setClockMessage] = useState('');
+  const [showAddEntry, setShowAddEntry] = useState(false);
+  const [entryDate, setEntryDate] = useState('');
+  const [entryClockIn, setEntryClockIn] = useState('');
+  const [entryClockOut, setEntryClockOut] = useState('');
+  const [entryMessage, setEntryMessage] = useState('');
 
   function fetchHistory() {
     fetch(`${process.env.REACT_APP_API_URL}/student-history/${student.student_id}`)
@@ -24,10 +29,10 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
       .then(data => setClockedIn(data.includes(student.student_id)));
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchHistory();
     checkClockedIn();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [student]);
 
   async function handleClockIn() {
@@ -64,6 +69,38 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
       setClockMessage('❌ ' + data.error);
     }
     setTimeout(() => setClockMessage(''), 3000);
+  }
+
+  async function handleAddEntry() {
+    if (!entryClockIn || !entryClockOut) {
+      setEntryMessage('❌ Please fill in all fields');
+      return;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/manual-clock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        student_id: student.student_id,
+        date: today,
+        clock_in: entryClockIn,
+        clock_out: entryClockOut
+      })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setEntryMessage('✅ Entry added!');
+      setEntryDate('');
+      setEntryClockIn('');
+      setEntryClockOut('');
+      fetchHistory();
+      setTimeout(() => {
+        setEntryMessage('');
+        setShowAddEntry(false);
+      }, 2000);
+    } else {
+      setEntryMessage('❌ ' + data.error);
+    }
   }
 
   function formatTime(dateTimeStr) {
@@ -175,15 +212,103 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
         </button>
       </div>
 
-      {/* Message */}
+      {/* Clock Message */}
       {clockMessage && (
         <p style={{ color: 'white', marginBottom: '16px', fontWeight: '500' }}>
           {clockMessage}
         </p>
       )}
 
+      {/* History Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <h2 style={{ margin: 0, color: 'white' }}>Clock In/Out History</h2>
+        <button
+          onClick={() => setShowAddEntry(!showAddEntry)}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            backgroundColor: '#5865F2',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '13px'
+          }}>
+          {showAddEntry ? 'Cancel' : '+ Add Entry'}
+        </button>
+      </div>
+
+      {/* Add Entry Form */}
+      {showAddEntry && (
+        <div style={{
+          background: '#1e1e3a',
+          border: '1px solid #5865F2',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ color: '#aaa', fontSize: '12px' }}>🕐 Clock In</label>
+              <input
+                type="time"
+                value={entryClockIn}
+                onChange={(e) => setEntryClockIn(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #333',
+                  background: '#0d0d1a',
+                  color: 'white',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label style={{ color: '#aaa', fontSize: '12px' }}>🕑 Clock Out</label>
+              <input
+                type="time"
+                value={entryClockOut}
+                onChange={(e) => setEntryClockOut(e.target.value)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #333',
+                  background: '#0d0d1a',
+                  color: 'white',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={handleAddEntry}
+              style={{
+                padding: '10px 20px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                backgroundColor: '#2ecc71',
+                color: 'white',
+                fontWeight: '600',
+                fontSize: '14px'
+              }}>
+              Save Entry
+            </button>
+            {entryMessage && (
+              <p style={{ color: 'white', margin: 0, fontWeight: '500' }}>
+                {entryMessage}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* History Table */}
-      <h2>Clock In/Out History</h2>
       <table className="history-table">
         <thead>
           <tr>
