@@ -366,3 +366,7 @@ button:disabled {
   overflow-y: auto;
   background: #080c14;
 }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

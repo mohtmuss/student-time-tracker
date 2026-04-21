@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 
 import './App.css'
 
+=======
+import './App.css'
+>>>>>>> frontend-ui
 import { useState, useEffect } from 'react';
 import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
@@ -11,6 +15,9 @@ import SettingsPage from './SettingsPage';
 function Dashboard() {
   const [activePage, setActivePage] = useState('home');
   const [teacherEmail, setTeacherEmail] = useState('');
+  const [students, setStudents] = useState([]);
+  const [clockedIn, setClockedIn] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -20,7 +27,49 @@ function Dashboard() {
     }
     const payload = JSON.parse(atob(token.split('.')[1]));
     setTeacherEmail(payload.sub || '');
+
+    fetchStudents();
+    fetchClockedIn();
+
+    // students refresh every 30 seconds (rarely changes)
+    const studentsInterval = setInterval(() => {
+      fetchStudents();
+    }, 30000);
+
+    // clocked in refresh every 5 seconds (changes often)
+    const clockedInInterval = setInterval(() => {
+      fetchClockedIn();
+    }, 5000);
+
+    return () => {
+      clearInterval(studentsInterval);
+      clearInterval(clockedInInterval);
+    };
   }, []);
+
+  async function fetchStudents() {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/students`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      });
+      const data = await res.json();
+      setStudents(data);
+    } catch (e) {
+      console.error('Failed to fetch students', e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function fetchClockedIn() {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/clocked-in-students`);
+      const data = await res.json();
+      setClockedIn(data);
+    } catch (e) {
+      console.error('Failed to fetch clocked in', e);
+    }
+  }
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
@@ -179,7 +228,6 @@ function Dashboard() {
               justifyContent: 'center',
               gap: '8px',
               transition: 'background 0.12s'
-              
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(226,75,74,0.1)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -196,11 +244,19 @@ function Dashboard() {
       </div>
 
       <div className="content">
-        {activePage === 'home' && <ChatBot />}
-        {activePage === 'students' && <StudentsPage />}
-        {activePage === 'attendance' && <AttendancePage />}
-        {activePage === 'reports' && <ReportsPage />}
-        {activePage === 'settings' && <SettingsPage />}
+        {loading ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'white' }}>
+            Loading...
+          </div>
+        ) : (
+          <>
+            {activePage === 'home' && <ChatBot students={students} />}
+            {activePage === 'students' && <StudentsPage students={students} clockedIn={clockedIn} refreshStudents={fetchStudents} refreshClockedIn={fetchClockedIn} />}
+            {activePage === 'attendance' && <AttendancePage students={students} clockedIn={clockedIn} />}
+            {activePage === 'reports' && <ReportsPage students={students} clockedIn={clockedIn} />}
+            {activePage === 'settings' && <SettingsPage />}
+          </>
+        )}
       </div>
     </div>
   );

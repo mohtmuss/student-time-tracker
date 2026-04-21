@@ -14,7 +14,7 @@ function Teacher() {
     }
     setLoading(true);
     try {
-      const response = await fetch('https://student-time-tracker-2.onrender.com/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: 'POST',
         mode: 'cors',
         headers: { 'Content-Type': 'application/json' },
@@ -114,19 +114,31 @@ function Teacher() {
           </div>
         )}
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          style={{
-            width: '100%', height: 46, background: '#0b1120',
-            color: '#c9a227', border: 'none', borderRadius: 8,
-            fontSize: 14, fontWeight: 600, cursor: 'pointer',
-            letterSpacing: '0.04em', fontFamily: 'inherit',
-            opacity: loading ? 0.7 : 1
-          }}
-        >
-          {loading ? 'Signing in...' : 'Sign in to dashboard'}
-        </button>
+<button
+  onClick={handleLogin}
+  disabled={loading}
+  style={{
+    width: '100%', height: 46, background: '#0b1120',
+    color: '#c9a227', border: 'none', borderRadius: 8,
+    fontSize: 14, fontWeight: 600, cursor: 'pointer',
+    letterSpacing: '0.04em', fontFamily: 'inherit',
+    opacity: loading ? 0.7 : 1
+  }}
+>
+  {loading ? (
+    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+      <span style={{
+        width: 16, height: 16,
+        border: '2px solid #c9a227',
+        borderTop: '2px solid transparent',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite',
+        display: 'inline-block'
+      }}/>
+      Signing in...
+    </span>
+  ) : 'Sign in to dashboard'}
+</button>
       </div>
     </div>
   );

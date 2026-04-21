@@ -1,39 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-function AttendancePage() {
-  const [students, setStudents] = useState([]);
-  const [clockedIn, setClockedIn] = useState([]);
+function AttendancePage({ students, clockedIn }) {
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentHistory, setStudentHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-
-  useEffect(() => {
-    fetchStudents();
-    fetchClockedIn();
-  }, []);
-
-  async function fetchStudents() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/students', {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    });
-    const data = await response.json();
-    setStudents(data);
-  }
-
-  async function fetchClockedIn() {
-    const response = await fetch('https://student-time-tracker-2.onrender.com/clocked-in-students');
-    const data = await response.json();
-    setClockedIn(data);
-  }
 
   async function selectStudent(student) {
     setSelectedStudent(student);
     setSearch(`${student.first_name} ${student.last_name}`);
     setShowSuggestions(false);
 
-    const response = await fetch(`https://student-time-tracker-2.onrender.com/student-history/${student.student_id}`);
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/student-history/${student.student_id}`);
     const data = await response.json();
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -68,7 +47,6 @@ function AttendancePage() {
 
   return (
     <div className="attendance">
-
       {/* Summary Cards */}
       <div className="attendance-cards">
         <div className="att-card purple">
@@ -137,7 +115,6 @@ function AttendancePage() {
           </div>
         )}
       </div>
-
     </div>
   );
 }
