@@ -22,6 +22,21 @@ def cleanup_clock(student_id):
             log.clock_out = datetime.now()
             db.session.commit()
 
+def setup_student_mm26():
+    with app.app_context():
+        existing = Student.query.filter_by(student_id='MM26').first()
+        if not existing:
+            student = Student(
+                student_id='MM26',
+                first_name='Mohamed',
+                last_name='Mussa',
+                email='mm26@millersville.edu',
+                graduation_year=2026,
+                status='alumni'
+            )
+            db.session.add(student)
+            db.session.commit()
+
 # ─── LOGIN ───────────────────────────────────────────────────────────
 
 def test_login_success(client):
@@ -127,6 +142,7 @@ def test_student_id_format(client):
 # ─── CLOCK IN ────────────────────────────────────────────────────────
 
 def test_clock_in_valid_student(client):
+    setup_student_mm26()
     cleanup_clock('MM26')
     res = client.post('/clock-in', json={'student_id': 'MM26'})
     assert res.status_code == 200
@@ -138,6 +154,7 @@ def test_clock_in_invalid_student(client):
     assert res.status_code == 404
 
 def test_clock_in_already_clocked_in(client):
+    setup_student_mm26()
     cleanup_clock('MM26')
     client.post('/clock-in', json={'student_id': 'MM26'})
     res = client.post('/clock-in', json={'student_id': 'MM26'})
@@ -148,6 +165,7 @@ def test_clock_in_already_clocked_in(client):
 # ─── CLOCK OUT ───────────────────────────────────────────────────────
 
 def test_clock_out_valid_student(client):
+    setup_student_mm26()
     cleanup_clock('MM26')
     client.post('/clock-in', json={'student_id': 'MM26'})
     res = client.post('/clock-out', json={'student_id': 'MM26'})
@@ -155,6 +173,7 @@ def test_clock_out_valid_student(client):
     assert res.get_json()['message'] == 'Clocked out!'
 
 def test_clock_out_not_clocked_in(client):
+    setup_student_mm26()
     cleanup_clock('MM26')
     res = client.post('/clock-out', json={'student_id': 'MM26'})
     assert res.status_code == 404
@@ -166,6 +185,7 @@ def test_clock_out_invalid_student(client):
 # ─── STUDENT HISTORY ─────────────────────────────────────────────────
 
 def test_student_history_valid(client):
+    setup_student_mm26()
     res = client.get('/student-history/MM26')
     assert res.status_code == 200
     assert isinstance(res.get_json(), list)
