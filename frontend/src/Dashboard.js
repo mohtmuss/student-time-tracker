@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 
 import './App.css'
 
-=======
-import './App.css'
->>>>>>> frontend-ui
 import { useState, useEffect } from 'react';
 import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
