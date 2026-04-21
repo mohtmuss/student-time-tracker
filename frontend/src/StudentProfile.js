@@ -5,7 +5,7 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [clockedIn, setClockedIn] = useState(false);
   const [clockMessage, setClockMessage] = useState('');
   const [showAddEntry, setShowAddEntry] = useState(false);
-  const [entryDate, setEntryDate] = useState('');
+
   const [entryClockIn, setEntryClockIn] = useState('');
   const [entryClockOut, setEntryClockOut] = useState('');
   const [entryMessage, setEntryMessage] = useState('');
@@ -34,7 +34,6 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     fetchHistory();
     checkClockedIn();
   }, [student]);
-
   async function handleClockIn() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/clock-in`, {
       method: 'POST',
