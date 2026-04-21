@@ -26,7 +26,7 @@ def cleanup_clock(student_id):
 
 def test_login_success(client):
     res = client.post('/login', json={
-        'email': 'Kaitin.gibbs@millersville.edu',
+        'email': 'kaitin.gibbs@millersville.edu',
         'password': 'yourpassword'
     })
     assert res.status_code == 200
@@ -34,14 +34,14 @@ def test_login_success(client):
 
 def test_login_wrong_password(client):
     res = client.post('/login', json={
-        'email': 'Kaitin.gibbs@millersville.edu',
+        'email': 'kaitin.gibbs@millersville.edu',
         'password': 'Yourpassword'
     })
     assert res.status_code == 401
 
 def test_login_right_email(client):
     res = client.post('/login', json={
-        'email': 'Kaitin.gibbs@millersville.edu',
+        'email': 'kaitin.gibbs@millersville.edu',
         'password': 'yourpassword'
     })
     assert res.status_code == 200

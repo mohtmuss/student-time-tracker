@@ -1,32 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import StudentProfile from './StudentProfile';
 
-function StudentsPage() {
+function StudentsPage({ students, clockedIn, refreshStudents, refreshClockedIn }) {
   const [view, setView] = useState('list');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [graduationYear, setGraduationYear] = useState('');
   const [status, setStatus] = useState('freshman');
-  const [students, setStudents] = useState([]);
-  const [clockedInIds, setClockedInIds] = useState([]);
-
-  useEffect(() => {
-    fetchStudents();
-    fetchClockedIn();
-  }, []);
- async function fetchClockedIn() {
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/clocked-in-students`);
-  const data = await response.json();
-  setClockedInIds(data);
-}
-  async function fetchStudents() {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/students`, {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    });
-    const data = await response.json();
-    setStudents(data);
-  }
 
   async function handleAddStudent() {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/add-student`, {
@@ -51,7 +32,7 @@ function StudentsPage() {
       setEmail('');
       setGraduationYear('');
       setStatus('freshman');
-      fetchStudents();
+      refreshStudents();
       setView('list');
     } else {
       alert('Error: ' + data.error);
@@ -59,7 +40,13 @@ function StudentsPage() {
   }
 
   if (view !== 'list' && view !== 'add') {
-    return <StudentProfile student={view} onBack={() => setView('list')} />;
+    return (
+      <StudentProfile
+        student={view}
+        onBack={() => setView('list')}
+        refreshClockedIn={refreshClockedIn}
+      />
+    );
   }
 
   if (view === 'add') {
@@ -83,20 +70,28 @@ function StudentsPage() {
     );
   }
 
+  const sortedStudents = [...students].sort((a, b) => {
+    const aIn = clockedIn.includes(a.student_id);
+    const bIn = clockedIn.includes(b.student_id);
+    if (aIn && !bIn) return -1;
+    if (!aIn && bIn) return 1;
+    return 0;
+  });
+
   return (
     <div>
       <div className="students-header">
         <h1>Students</h1>
         <button onClick={() => setView('add')}>+ Add Student</button>
       </div>
-      {students.map(student => (
-  <div key={student.id} className="student-card" onClick={() => setView(student)}>
-    <span className="green-circle" style={{
-      backgroundColor: clockedInIds.includes(student.student_id) ? '#2ecc71' : '#e74c3c'
-    }}></span>
-    <strong>{student.first_name} {student.last_name}</strong>
-  </div>
-))}
+      {sortedStudents.map(student => (
+        <div key={student.id} className="student-card" onClick={() => setView(student)}>
+          <span className="green-circle" style={{
+            backgroundColor: clockedIn.includes(student.student_id) ? '#2ecc71' : '#e74c3c'
+          }}></span>
+          <strong>{student.first_name} {student.last_name}</strong>
+        </div>
+      ))}
     </div>
   );
 }

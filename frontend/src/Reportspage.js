@@ -1,11 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-function ReportsPage() {
-  const [students, setStudents] = useState([]);
-  const [clockedIn, setClockedIn] = useState([]);
+function ReportsPage({ students, clockedIn }) {
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentHistory, setStudentHistory] = useState([]);
@@ -30,25 +28,6 @@ function ReportsPage() {
     const { startOfWeek, endOfWeek } = getWeekRange(offset);
     const options = { month: 'short', day: 'numeric' };
     return `${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
-  }
-
-  useEffect(() => {
-    fetchStudents();
-    fetchClockedIn();
-  }, []);
-
-  async function fetchStudents() {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/students`, {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    });
-    const data = await response.json();
-    setStudents(data);
-  }
-
-  async function fetchClockedIn() {
-   const response = await fetch(`${process.env.REACT_APP_API_URL}/clocked-in-students`);
-    const data = await response.json();
-    setClockedIn(data);
   }
 
   async function selectStudent(student, offset = currentWeekOffset) {
@@ -168,7 +147,6 @@ function ReportsPage() {
               </button>
             </div>
           )}
-
         </div>
       </div>
 
@@ -186,50 +164,31 @@ function ReportsPage() {
           </p>
 
           {/* Week Navigation */}
-            {/* Week Navigation */}
-<div style={{display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0'}}>
-  <button
-    onClick={() => {
-      const newOffset = currentWeekOffset - 1;
-      setCurrentWeekOffset(newOffset);
-      selectStudent(selectedStudent, newOffset);
-    }}
-    style={{
-      background: '#5865F2',
-      color: 'white',
-      border: 'none',
-      padding: '6px 12px',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      fontSize: '14px'
-    }}>
-    ← Prev
-  </button>
+          <div style={{display: 'flex', alignItems: 'center', gap: '12px', margin: '20px 0'}}>
+            <button
+              onClick={() => {
+                const newOffset = currentWeekOffset - 1;
+                setCurrentWeekOffset(newOffset);
+                selectStudent(selectedStudent, newOffset);
+              }}
+              style={{background: '#5865F2', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px'}}>
+              ← Prev
+            </button>
+            <span style={{color: 'white', fontSize: '14px'}}>
+              📅 {formatWeekLabel(currentWeekOffset)}
+            </span>
+            <button
+              onClick={() => {
+                const newOffset = currentWeekOffset + 1;
+                setCurrentWeekOffset(newOffset);
+                selectStudent(selectedStudent, newOffset);
+              }}
+              disabled={currentWeekOffset === 0}
+              style={{background: currentWeekOffset === 0 ? '#333' : '#5865F2', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: currentWeekOffset === 0 ? 'not-allowed' : 'pointer', fontSize: '14px'}}>
+              Next →
+            </button>
+          </div>
 
-  <span style={{color: 'white', fontSize: '14px'}}>
-    📅 {formatWeekLabel(currentWeekOffset)}
-  </span>
-
-  <button
-    onClick={() => {
-      const newOffset = currentWeekOffset + 1;
-      setCurrentWeekOffset(newOffset);
-      selectStudent(selectedStudent, newOffset);
-    }}
-    disabled={currentWeekOffset === 0}
-    style={{
-      background: currentWeekOffset === 0 ? '#333' : '#5865F2',
-      color: 'white',
-      border: 'none',
-      padding: '6px 12px',
-      borderRadius: '6px',
-      cursor: currentWeekOffset === 0 ? 'not-allowed' : 'pointer',
-      fontSize: '14px'
-    }}>
-    Next →
-  </button>
-</div> 
-         
           {/* Bar Chart */}
           <h3 style={{color: 'white', marginTop: '20px'}}>📊 Hours by Day of Week</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -259,10 +218,8 @@ function ReportsPage() {
               </ResponsiveContainer>
             </div>
           )}
-
         </div>
       )}
-
     </div>
   );
 }
