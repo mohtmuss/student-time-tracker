@@ -13,7 +13,10 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+db_url = os.getenv('DATABASE_URL')
+if db_url and 'supabase' in db_url:
+    db_url += '?sslmode=require'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 db = SQLAlchemy(app)
@@ -370,6 +373,32 @@ def erase_timelogs():
     TimeLog.query.delete()
     db.session.commit()
     return jsonify({'message': 'All time logs erased successfully!'}), 200
-
+@app.route('/seed-test-data', methods=['POST'])
+def seed_test_data():
+    from datetime import datetime, timedelta
+    TimeLog.query.filter_by(student_id='MM26').delete()
+    
+    test_logs = [
+        {'day': 0, 'clock_in': '09:00', 'clock_out': '11:00'},   # Sunday
+        {'day': 1, 'clock_in': '10:00', 'clock_out': '12:30'},   # Monday
+        {'day': 2, 'clock_in': '13:00', 'clock_out': '15:00'},   # Tuesday
+    ]
+    
+    now = datetime.now()
+    # start from Sunday of current week
+    start_of_week = now - timedelta(days=now.weekday() + 1)
+    
+    for log in test_logs:
+        clock_in = start_of_week + timedelta(days=log['day'], hours=int(log['clock_in'].split(':')[0]), minutes=int(log['clock_in'].split(':')[1]))
+        clock_out = start_of_week + timedelta(days=log['day'], hours=int(log['clock_out'].split(':')[0]), minutes=int(log['clock_out'].split(':')[1]))
+        db.session.add(TimeLog(
+            student_id='MM26',
+            clock_in=clock_in,
+            clock_out=clock_out,
+            date=clock_in.date()
+        ))
+    
+    db.session.commit()
+    return jsonify({'message': 'Test data seeded!'})
 if __name__ == '__main__':
     app.run(debug=True)
