@@ -5,7 +5,6 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [clockedIn, setClockedIn] = useState(false);
   const [clockMessage, setClockMessage] = useState('');
   const [showAddEntry, setShowAddEntry] = useState(false);
-  const [entryDate, setEntryDate] = useState('');
   const [entryClockIn, setEntryClockIn] = useState('');
   const [entryClockOut, setEntryClockOut] = useState('');
   const [entryMessage, setEntryMessage] = useState('');
@@ -90,7 +89,6 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     const data = await res.json();
     if (res.ok) {
       setEntryMessage('✅ Entry added!');
-      setEntryDate('');
       setEntryClockIn('');
       setEntryClockOut('');
       fetchHistory();
