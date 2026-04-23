@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback} from 'react';
 
 function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [history, setHistory] = useState([]);
