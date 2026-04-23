@@ -5,7 +5,6 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [clockedIn, setClockedIn] = useState(false);
   const [clockMessage, setClockMessage] = useState('');
   const [showAddEntry, setShowAddEntry] = useState(false);
-
   const [entryClockIn, setEntryClockIn] = useState('');
   const [entryClockOut, setEntryClockOut] = useState('');
   const [entryMessage, setEntryMessage] = useState('');
