@@ -34,6 +34,7 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     fetchHistory();
     checkClockedIn();
   }, [student]);
+  
   async function handleClockIn() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/clock-in`, {
       method: 'POST',
