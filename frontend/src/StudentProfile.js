@@ -10,7 +10,7 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
   const [entryClockOut, setEntryClockOut] = useState('');
   const [entryMessage, setEntryMessage] = useState('');
 
-  function fetchHistory() {
+  const fetchHistory = useCallback(() => {
     fetch(`${process.env.REACT_APP_API_URL}/student-history/${student.student_id}`)
       .then(res => res.json())
       .then(data => {
@@ -21,19 +21,18 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
         });
         setHistory(sorted);
       });
-  }
+  }, [student.student_id]);
 
-  function checkClockedIn() {
+  const checkClockedIn = useCallback(() => {
     fetch(`${process.env.REACT_APP_API_URL}/clocked-in-students`)
       .then(res => res.json())
       .then(data => setClockedIn(data.includes(student.student_id)));
-  }
+  }, [student.student_id]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchHistory();
     checkClockedIn();
-  }, [student]);
+  }, [fetchHistory, checkClockedIn]);
   
   async function handleClockIn() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/clock-in`, {
