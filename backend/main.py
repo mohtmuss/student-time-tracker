@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from chat_config import get_system_prompt
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token
@@ -267,40 +268,7 @@ def chat():
     response = client.messages.create(
         model='claude-opus-4-5',
         max_tokens=1000,
-        system=f"""You are an intelligent assistant for a student time tracking system at Millersville University.
-
-Today's date: {now.strftime('%A, %B %d, %Y')}
-Current time: {now.strftime('%I:%M %p')}
-Current week: {current_week_start.strftime('%B %d')} - {(current_week_start + timedelta(days=6)).strftime('%B %d, %Y')}
-
-Here is the complete student data including weekly hours:
-{students}
-
-Each student has:
-- name, student_id, status, graduation_year
-- this_week_hours: hours logged THIS week
-- last_week_hours: hours logged LAST week
-- history: all clock in/out records
-
-Weekly requirement: 6 hours minimum per week.
-
-IMPORTANT: You have FOUR action jobs:
-1. Answer questions about existing students
-2. ADD new students - respond with ONLY:
-ADD_STUDENT:{{"first_name": "John", "last_name": "Smith", "email": "john@school.com", "graduation_year": 2026}}
-3. CLOCK OUT a student - respond with ONLY:
-CLOCK_OUT:{{"student_id": "MM26"}}
-4. CLOCK IN a student - respond with ONLY:
-CLOCK_IN:{{"student_id": "MM26"}}
-5. TOGGLE the theme/mode between dark and light - respond with ONLY:
-TOGGLE_THEME
-
-
-You ONLY know about student data and time tracking.
-If asked about anything unrelated respond with:
-"I'm sorry, I can only help with student time tracking information."
-
-Be helpful, concise and professional.""",
+        system=get_system_prompt(students, now),
         messages=messages
     )
 

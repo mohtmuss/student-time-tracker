@@ -224,7 +224,7 @@ function Dashboard() {
         ) : (
           <>
             {/* ← allStudentData for accurate hours, onToggleTheme for chat toggle */}
-            {activePage === 'home' && <ChatBot students={allStudentData} onToggleTheme={toggleMode} />}
+            {activePage === 'home' && <ChatBot students={allStudentData} onToggleTheme={toggleMode} teacherEmail={teacherEmail} />}
             {activePage === 'students' && <StudentsPage students={students} clockedIn={clockedIn} refreshStudents={fetchStudents} refreshClockedIn={fetchClockedIn} />}
             {activePage === 'attendance' && <AttendancePage students={students} clockedIn={clockedIn} />}
             {activePage === 'reports' && <ReportsPage students={students} clockedIn={clockedIn} />}
