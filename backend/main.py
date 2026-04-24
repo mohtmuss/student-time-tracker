@@ -404,5 +404,16 @@ def manual_clock():
     db.session.commit()
     return jsonify({'message': 'Entry added!'}), 200
 
+@app.route('/delete-student/<student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    student = Student.query.filter_by(student_id = student_id).first()
+    if not student:
+        return jsonify({'error': 'Student not found'}), 404
+    TimeLog.query.filter_by(student_id=student_id).delete()
+    db.session.delete(student)
+    db.session.commit()
+    return jsonify({'message' : 'Student deleted!'}) , 200
+
+
 if __name__ == '__main__':
     app.run(debug=True)

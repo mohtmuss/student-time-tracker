@@ -68,6 +68,17 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     }
     setTimeout(() => setClockMessage(''), 3000);
   }
+  
+  async function handleDeleteStudent() {
+    if (!window.confirm(`Are you sure you want to delete ${student.first_name} ${student.last_name}? This cannot be undone.`)) return;
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/delete-student/${student.student_id}`, {
+        method: 'DELETE'
+    });
+    if (res.ok) {
+        onBack(); // goes back to student list
+    }
+}
+
 
   async function handleAddEntry() {
     if (!entryClockIn || !entryClockOut) {
@@ -158,6 +169,21 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
       <p>Email: {student.email}</p>
       <p>Status: {student.status}</p>
       <p>Graduation Year: {student.graduation_year}</p>
+ 
+      {/* Add this */}
+      <button onClick={handleDeleteStudent}style={{
+         padding: '10px 20px',
+         borderRadius: '8px',
+         border: 'none',
+         cursor: 'pointer',
+         backgroundColor: '#e74c3c',
+         color: 'white',
+         fontWeight: '600',
+         fontSize: '14px',
+         marginLeft: '12px'
+       }}>
+    🗑️ Delete Student
+      </button>
 
       {/* Weekly Summary */}
       <div className="weekly-summary" style={{

@@ -63,3 +63,16 @@ def test_student_id_format(client):
     })
     assert res.get_json()['student_id'] == 'AB27'
     cleanup_student('anna.brown@millersville.edu')
+    
+def test_delete_student(client):
+    cleanup_student('jane@millersville.edu')  
+    client.post('/add-student', json = {
+        'first_name': 'Jane',
+        'last_name': 'Doe',
+        'email': 'jane@millersville.edu',
+        'graduation_year': 2027
+    })
+    
+    res = client.delete('/delete-student/JD27')
+    assert res.status_code == 200
+    cleanup_student('jane@millersville.edu') 
