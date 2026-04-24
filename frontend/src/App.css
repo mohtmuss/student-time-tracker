@@ -1,9 +1,62 @@
+/* ===================== */
+/*   CSS DESIGN TOKENS   */
+/* ===================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #0d0d1a;
+  --bg-secondary: #1e1e3a;
+  --bg-tertiary: #12122a;
+  --bg-sidebar: #0e1525;
+  --bg-input: #0d0d1a;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.4);
+  --text-muted: #aaa;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-subtle: #333;
+  --card-purple: #1e1e3a;
+  --card-green: #1a3a1a;
+  --card-red: #3a1a1a;
+  --chart-grid: #333;
+  --chart-axis: #aaa;
+  --tooltip-bg: #1e1e3a;
+  --tooltip-color: white;
+}
+
+:root.light {
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-input: #ffffff;
+  --text-primary: #111111;
+  --text-secondary: rgba(0, 0, 0, 0.5);
+  --text-muted: #666666;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --border-subtle: #dddddd;
+  --card-purple: #ede9fe;
+  --card-green: #dcfce7;
+  --card-red: #fee2e2;
+  --chart-grid: #e5e7eb;
+  --chart-axis: #666;
+  --tooltip-bg: #ffffff;
+  --tooltip-color: #111;
+}
+
+/* ===================== */
+/*       BASE            */
+/* ===================== */
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background: var(--bg-primary);
 }
 
 h1 {
@@ -15,8 +68,8 @@ input {
   font-size: 18px;
   border-radius: 8px;
   border: 2px solid gold;
-  background-color: black;
-  color: gold;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
   text-align: center;
   margin-bottom: 20px;
   width: 250px;
@@ -51,31 +104,38 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* ===================== */
+/*      DASHBOARD        */
+/* ===================== */
+
 .dashboard {
   display: flex;
-  flex-direction: row;
   height: 100vh;
-  background-color: #0d0d1a;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .sidebar {
-  width: 220px;
-  background-color: #12122a;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  gap: 8px;
+  height: 100vh;
+  overflow-y: auto;
+  width: 220px;
+  background: var(--bg-sidebar);
+  border-right: 0.5px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .sidebar h2 {
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 30px;
   font-size: 18px;
 }
 
 .sidebar button {
   background-color: transparent;
-  color: #aaaacc;
+  color: var(--text-secondary);
   border: none;
   text-align: left;
   padding: 30px 40px;
@@ -94,14 +154,22 @@ button:disabled {
 .content {
   flex: 1;
   padding: 40px;
-  color: white;
-  background-color: #0d0d1a;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  box-sizing: border-box;
 }
+
 .content h1 {
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 30px;
 }
+
+/* ===================== */
+/*      STUDENTS         */
+/* ===================== */
 
 .students-header {
   display: flex;
@@ -115,10 +183,12 @@ button:disabled {
   align-items: center;
   gap: 12px;
   padding: 14px;
-  background-color: #1e1e3a;
+  background-color: var(--bg-secondary);
   border-radius: 8px;
   margin-bottom: 10px;
-  color: white;
+  color: var(--text-primary);
+  cursor: pointer;
+  border: 1px solid var(--border-color);
 }
 
 .green-circle {
@@ -128,9 +198,10 @@ button:disabled {
   border-radius: 50%;
   display: inline-block;
 }
-.student-card {
-  cursor: pointer;
-}
+
+/* ===================== */
+/*    HISTORY TABLE      */
+/* ===================== */
 
 .history-table {
   width: 100%;
@@ -147,13 +218,18 @@ button:disabled {
 
 .history-table td {
   padding: 12px;
-  border-bottom: 1px solid #1e1e3a;
-  color: white;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .history-table tr:hover {
-  background-color: #1e1e3a;
+  background-color: var(--bg-secondary);
 }
+
+/* ===================== */
+/*       CHATBOT         */
+/* ===================== */
+
 .chatbot {
   display: flex;
   flex-direction: column;
@@ -182,9 +258,10 @@ button:disabled {
 }
 
 .chat-message.assistant {
-  background-color: #1e1e3a;
-  color: white;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   align-self: flex-start;
+  border: 1px solid var(--border-color);
 }
 
 .chat-input {
@@ -197,8 +274,8 @@ button:disabled {
   padding: 12px;
   border-radius: 8px;
   border: 2px solid #5865F2;
-  background-color: #1e1e3a;
-  color: white;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   font-size: 16px;
 }
 
@@ -212,6 +289,33 @@ button:disabled {
   font-size: 16px;
   width: auto;
 }
+
+.chat-message table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.chat-message th {
+  background-color: #5865F2;
+  color: white;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.chat-message td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.chat-message tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* ===================== */
+/*      ATTENDANCE       */
+/* ===================== */
 
 .attendance {
   display: flex;
@@ -232,39 +336,43 @@ button:disabled {
 }
 
 .att-card p {
-  color: #aaa;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .att-card h2 {
   font-size: 48px;
   margin: 8px 0 0 0;
-  color: white;
+  color: var(--text-primary);
 }
 
 .att-card.purple {
-  background-color: #1e1e3a;
+  background-color: var(--card-purple);
   border-left: 4px solid #5865F2;
 }
 
 .att-card.green {
-  background-color: #1a3a1a;
+  background-color: var(--card-green);
   border-left: 4px solid #2ecc71;
 }
 
 .att-card.red {
-  background-color: #3a1a1a;
+  background-color: var(--card-red);
   border-left: 4px solid #e74c3c;
 }
 
 .att-section {
-  background-color: #1e1e3a;
+  background-color: var(--bg-secondary);
   padding: 24px;
   border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;   /* ← stops padding from adding to width */
+  width: 100%;              /* ← always fits its parent */
+  min-width: 0;             /* ← prevents flex overflow */
 }
 
 .att-section h2 {
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 20px;
 }
 
@@ -273,12 +381,38 @@ button:disabled {
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border-bottom: 1px solid #2d2d4a;
-  color: white;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
+
+/* ===================== */
+/*       SEARCH          */
+/* ===================== */
 
 .search-wrapper {
   position: relative;
+}
+
+.att-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.search-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.att-section {
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .suggestions {
@@ -286,7 +420,7 @@ button:disabled {
   top: 100%;
   left: 0;
   right: 0;
-  background-color: #1e1e3a;
+  background-color: var(--bg-secondary);
   border: 1px solid #5865F2;
   border-radius: 8px;
   z-index: 100;
@@ -296,7 +430,7 @@ button:disabled {
 
 .suggestion-item {
   padding: 12px 16px;
-  color: white;
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -305,7 +439,13 @@ button:disabled {
 
 .suggestion-item:hover {
   background-color: #5865F2;
+  color: white;
 }
+
+/* ===================== */
+/*      DOWNLOAD         */
+/* ===================== */
+
 .download-btn {
   background-color: #5865F2;
   color: white;
@@ -321,51 +461,33 @@ button:disabled {
 .download-btn:hover {
   background-color: #4752c4;
 }
-.chat-message table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-top: 10px;
+
+/* ===================== */
+/*    DARK MODE TOGGLE   */
+/* ===================== */
+
+.dark-toggle {
+  position: fixed !important;
+  top: 12px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+  border-radius: 20px !important;
+  padding: 8px 16px !important;
+  font-size: 13px !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
 }
 
-.chat-message th {
-  background-color: #5865F2;
-  color: white;
-  padding: 8px 12px;
-  text-align: left;
-}
-
-.chat-message td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #2d2d4a;
-  color: white;
-}
-
-.chat-message tr:hover {
-  background-color: #2d2d4a;
-}
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
-  width: 220px;
-  background: #0e1525;
-  border-right: 0.5px solid rgba(255,255,255,0.06);
-  flex-shrink: 0;
-}
-
-.dashboard {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.content {
-  flex: 1;
-  overflow-y: auto;
-  background: #080c14;
-}
+/* ===================== */
+/*      ANIMATIONS       */
+/* ===================== */
 
 @keyframes spin {
   to { transform: rotate(360deg); }

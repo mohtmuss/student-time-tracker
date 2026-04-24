@@ -16,29 +16,22 @@ function AttendancePage({ students, clockedIn }) {
     const data = await response.json();
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const dayHours = {Sunday: 0, Monday: 0, Tuesday: 0, Wednesday: 0, Thursday: 0, Friday: 0, Saturday: 0};
+    const dayHours = { Sunday: 0, Monday: 0, Tuesday: 0, Wednesday: 0, Thursday: 0, Friday: 0, Saturday: 0 };
 
     data.forEach(log => {
       if (log.clock_in && log.clock_out) {
         const clockIn = new Date(log.clock_in);
         const clockOut = new Date(log.clock_out);
         const hours = (clockOut - clockIn) / 1000 / 60 / 60;
-        const day = days[clockIn.getDay()];
-        dayHours[day] += hours;
+        dayHours[days[clockIn.getDay()]] += hours;
       }
     });
 
-    const chartData = days.map(day => ({
-      day,
-      hours: parseFloat(dayHours[day].toFixed(2))
-    }));
-
-    setStudentHistory(chartData);
+    setStudentHistory(days.map(day => ({ day, hours: parseFloat(dayHours[day].toFixed(2)) })));
   }
 
   const suggestions = students.filter(s =>
-    `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase()) &&
-    search.length > 0
+    `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase()) && search.length > 0
   );
 
   const totalStudents = students.length;
@@ -71,21 +64,13 @@ function AttendancePage({ students, clockedIn }) {
             type="text"
             placeholder="Search student..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setShowSuggestions(true);
-              setSelectedStudent(null);
-            }}
+            onChange={(e) => { setSearch(e.target.value); setShowSuggestions(true); setSelectedStudent(null); }}
             className="att-search"
           />
           {showSuggestions && suggestions.length > 0 && (
             <div className="suggestions">
               {suggestions.map(student => (
-                <div
-                  key={student.student_id}
-                  className="suggestion-item"
-                  onClick={() => selectStudent(student)}
-                >
+                <div key={student.student_id} className="suggestion-item" onClick={() => selectStudent(student)}>
                   <span className="green-circle" style={{
                     backgroundColor: clockedIn.includes(student.student_id) ? '#2ecc71' : '#e74c3c'
                   }}></span>
@@ -99,15 +84,15 @@ function AttendancePage({ students, clockedIn }) {
         {/* Student Graph */}
         {selectedStudent && (
           <div>
-            <h3 style={{color: 'white', marginTop: '20px'}}>
+            <h3 style={{ color: 'var(--text-primary)', marginTop: '20px' }}>
               {selectedStudent.first_name} {selectedStudent.last_name} — Hours by Day
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={studentHistory}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="day" stroke="#aaa" />
-                <YAxis stroke="#aaa" />
-                <Tooltip contentStyle={{backgroundColor: '#1e1e3a', border: 'none', color: 'white'}} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
+                <XAxis dataKey="day" stroke="var(--chart-axis)" />
+                <YAxis stroke="var(--chart-axis)" />
+                <Tooltip contentStyle={{ backgroundColor: 'var(--tooltip-bg)', border: 'none', color: 'var(--tooltip-color)' }} />
                 <Legend />
                 <Bar dataKey="hours" fill="#5865F2" radius={[4, 4, 0, 0]} />
               </BarChart>

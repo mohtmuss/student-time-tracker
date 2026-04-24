@@ -2,9 +2,9 @@ import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-function ChatBot({ students }) {
+function ChatBot({ students, onToggleTheme }) {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hi! I can help you find information about your students. Ask me anything!' }
+    { role: 'assistant', content: 'Hi! I can help you find information about your students. You can also ask me to **toggle the theme**, **clock in/out** students, or **add** new ones!' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +16,7 @@ function ChatBot({ students }) {
     setMessages(updatedMessages);
     setInput('');
     setLoading(true);
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/chat`, {
         method: 'POST',
@@ -26,17 +27,21 @@ function ChatBot({ students }) {
         })
       });
       const data = await response.json();
-      const assistantMessage = {
+
+      // Handle toggle theme action
+      if (data.action === 'TOGGLE_THEME') {
+        onToggleTheme();
+      }
+
+      setMessages([...updatedMessages, {
         role: 'assistant',
         content: data.response || "I'm sorry, I can only help with student time tracking information!"
-      };
-      setMessages([...updatedMessages, assistantMessage]);
+      }]);
     } catch (error) {
-      const errorMessage = {
+      setMessages([...updatedMessages, {
         role: 'assistant',
         content: "I'm sorry, something went wrong. Please try again!"
-      };
-      setMessages([...updatedMessages, errorMessage]);
+      }]);
     } finally {
       setLoading(false);
     }
@@ -44,7 +49,8 @@ function ChatBot({ students }) {
 
   return (
     <div className="chatbot">
-      <h1>Student Assistant</h1>
+      <h1 style={{ color: 'var(--text-primary)' }}>Student Assistant</h1>
+
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`chat-message ${msg.role}`}>
@@ -53,8 +59,13 @@ function ChatBot({ students }) {
             </ReactMarkdown>
           </div>
         ))}
-        {loading && <div className="chat-message assistant"><p>Thinking...</p></div>}
+        {loading && (
+          <div className="chat-message assistant">
+            <p>Thinking...</p>
+          </div>
+        )}
       </div>
+
       <div className="chat-input">
         <input
           type="text"

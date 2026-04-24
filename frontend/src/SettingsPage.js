@@ -12,9 +12,6 @@ function SettingsPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ access_key: accessKey })
     });
-
-    
-
     if (response.ok) {
       setMessage('✅ All time logs erased successfully!');
       setAccessKey('');
@@ -28,8 +25,8 @@ function SettingsPage() {
   return (
     <div className="attendance">
       <div className="att-section">
-        <h2 style={{color: 'white'}}>⚙️ Settings</h2>
-        <p style={{color: '#aaa', marginBottom: '24px'}}>
+        <h2>⚙️ Settings</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
           Manage system data and access
         </p>
 
@@ -40,8 +37,8 @@ function SettingsPage() {
           padding: '24px',
           marginTop: '20px'
         }}>
-          <h3 style={{color: '#e74c3c', marginBottom: '8px'}}>⚠️ Danger Zone</h3>
-          <p style={{color: '#aaa', marginBottom: '16px'}}>
+          <h3 style={{ color: '#e74c3c', marginBottom: '8px' }}>⚠️ Danger Zone</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>
             Erase all clock in/out history. This action cannot be undone!
           </p>
 
@@ -49,19 +46,15 @@ function SettingsPage() {
             <button
               onClick={() => setShowConfirm(true)}
               style={{
-                backgroundColor: '#e74c3c',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '16px'
+                backgroundColor: '#e74c3c', color: 'white',
+                border: 'none', padding: '12px 24px',
+                borderRadius: '8px', cursor: 'pointer', fontSize: '16px'
               }}>
               🗑️ Erase All Time Logs
             </button>
           ) : (
             <div>
-              <p style={{color: 'white', marginBottom: '12px'}}>
+              <p style={{ color: 'var(--text-primary)', marginBottom: '12px' }}>
                 Enter access key to confirm:
               </p>
               <input
@@ -70,55 +63,40 @@ function SettingsPage() {
                 value={accessKey}
                 onChange={(e) => setAccessKey(e.target.value)}
                 style={{
-                  padding: '10px',
-                  borderRadius: '8px',
+                  padding: '10px', borderRadius: '8px',
                   border: '2px solid #e74c3c',
-                  backgroundColor: '#0d0d1a',
-                  color: 'white',
-                  fontSize: '16px',
-                  width: '250px',
-                  marginRight: '12px'
+                  backgroundColor: 'var(--bg-input)',
+                  color: 'var(--text-primary)',
+                  fontSize: '16px', width: '250px', marginRight: '12px'
                 }}
               />
               <button
                 onClick={handleErase}
                 style={{
-                  backgroundColor: '#e74c3c',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  marginRight: '8px'
+                  backgroundColor: '#e74c3c', color: 'white',
+                  border: 'none', padding: '10px 20px',
+                  borderRadius: '8px', cursor: 'pointer',
+                  fontSize: '16px', marginRight: '8px'
                 }}>
                 Confirm Erase
               </button>
               <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  setAccessKey('');
-                  setError('');
-                }}
+                onClick={() => { setShowConfirm(false); setAccessKey(''); setError(''); }}
                 style={{
-                  backgroundColor: '#333',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '16px'
+                  backgroundColor: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-subtle)',
+                  padding: '10px 20px', borderRadius: '8px',
+                  cursor: 'pointer', fontSize: '16px'
                 }}>
                 Cancel
               </button>
-              {error && <p style={{color: '#e74c3c', marginTop: '12px'}}>{error}</p>}
+              {error && <p style={{ color: '#e74c3c', marginTop: '12px' }}>{error}</p>}
             </div>
           )}
 
           {message && (
-            <p style={{color: '#2ecc71', marginTop: '16px', fontWeight: 'bold'}}>
-              {message}
-            </p>
+            <p style={{ color: '#2ecc71', marginTop: '16px', fontWeight: 'bold' }}>{message}</p>
           )}
         </div>
       </div>

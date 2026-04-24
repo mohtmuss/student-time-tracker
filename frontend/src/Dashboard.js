@@ -1,6 +1,4 @@
-
 import './App.css'
-
 import { useState, useEffect } from 'react';
 import StudentsPage from './StudentsPages';
 import ChatBot from './ChatBot';
@@ -9,11 +7,13 @@ import ReportsPage from './Reportspage';
 import SettingsPage from './SettingsPage';
 
 function Dashboard() {
+  const [darkMode, setDarkMode] = useState(true);
   const [activePage, setActivePage] = useState('home');
   const [teacherEmail, setTeacherEmail] = useState('');
   const [students, setStudents] = useState([]);
   const [clockedIn, setClockedIn] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [allStudentData, setAllStudentData] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,22 +26,23 @@ function Dashboard() {
 
     fetchStudents();
     fetchClockedIn();
+    fetchAllStudentData(); // ← fetch rich data for chatbot
 
-    // students refresh every 30 seconds (rarely changes)
-    const studentsInterval = setInterval(() => {
-      fetchStudents();
-    }, 30000);
-
-    // clocked in refresh every 5 seconds (changes often)
-    const clockedInInterval = setInterval(() => {
-      fetchClockedIn();
-    }, 5000);
+    const studentsInterval = setInterval(() => { fetchStudents(); }, 30000);
+    const clockedInInterval = setInterval(() => { fetchClockedIn(); }, 5000);
+    const allDataInterval = setInterval(() => { fetchAllStudentData(); }, 30000);
 
     return () => {
       clearInterval(studentsInterval);
       clearInterval(clockedInInterval);
+      clearInterval(allDataInterval);
     };
   }, []);
+
+  function toggleMode() {
+    const isLight = document.documentElement.classList.toggle('light');
+    setDarkMode(!isLight);
+  }
 
   async function fetchStudents() {
     try {
@@ -64,6 +65,16 @@ function Dashboard() {
       setClockedIn(data);
     } catch (e) {
       console.error('Failed to fetch clocked in', e);
+    }
+  }
+
+  async function fetchAllStudentData() {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/all-student-data`);
+      const data = await res.json();
+      setAllStudentData(data);
+    } catch (e) {
+      console.error('Failed to fetch all student data', e);
     }
   }
 
@@ -97,43 +108,36 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      <div className="sidebar">
 
+      {/* Toggle only on home page */}
+      {activePage === 'home' && (
+        <button className="dark-toggle" onClick={toggleMode}>
+          {darkMode ? '☀️ Light' : '🌙 Dark'}
+        </button>
+      )}
+
+      <div className="sidebar">
         {/* Logo & Email */}
         <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: '24px 16px 16px',
-          borderBottom: '0.5px solid rgba(255,255,255,0.08)',
+          borderBottom: '0.5px solid var(--border-color)',
           marginBottom: '8px'
         }}>
           <img
             src="/Millersville_Marauders_logo_svg.png"
             alt="Millersville Marauders"
-            style={{
-              width: '80px',
-              height: '80px',
-              objectFit: 'contain',
-              marginBottom: '12px'
-            }}
+            style={{ width: '80px', height: '80px', objectFit: 'contain', marginBottom: '12px' }}
           />
           <span style={{
-            color: '#c9a227',
-            fontSize: '11px',
-            fontWeight: '600',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            marginBottom: '4px'
+            color: '#c9a227', fontSize: '11px', fontWeight: '600',
+            letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px'
           }}>
             Millersville
           </span>
           <span style={{
-            color: 'rgba(255,255,255,0.4)',
-            fontSize: '11px',
-            textAlign: 'center',
-            wordBreak: 'break-all',
-            padding: '0 8px'
+            color: 'var(--text-secondary)', fontSize: '11px',
+            textAlign: 'center', wordBreak: 'break-all', padding: '0 8px'
           }}>
             {teacherEmail}
           </span>
@@ -142,12 +146,8 @@ function Dashboard() {
         {/* Nav */}
         <div style={{ padding: '8px 12px', flex: 1 }}>
           <p style={{
-            fontSize: '10px',
-            fontWeight: '600',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'rgba(255,255,255,0.2)',
-            padding: '8px 8px 6px'
+            fontSize: '10px', fontWeight: '600', letterSpacing: '0.1em',
+            textTransform: 'uppercase', color: 'var(--text-secondary)', padding: '8px 8px 6px'
           }}>
             Main menu
           </p>
@@ -157,32 +157,25 @@ function Dashboard() {
               key={item.page}
               onClick={() => setActivePage(item.page)}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                width: '100%',
-                padding: '10px 12px',
-                marginBottom: '16px',
-                borderRadius: '8px',
-                border: 'none',
-                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '10px',
+                width: '100%', padding: '10px 12px', marginBottom: '16px',
+                borderRadius: '8px', border: 'none', cursor: 'pointer',
                 fontSize: '13px',
                 fontWeight: activePage === item.page ? '500' : '400',
                 background: activePage === item.page ? 'rgba(201,162,39,0.12)' : 'transparent',
-                color: activePage === item.page ? '#c9a227' : 'rgba(255,255,255,0.45)',
-                textAlign: 'left',
-                transition: 'background 0.12s, color 0.12s'
+                color: activePage === item.page ? '#c9a227' : 'var(--text-secondary)',
+                textAlign: 'left', transition: 'background 0.12s, color 0.12s'
               }}
               onMouseEnter={e => {
                 if (activePage !== item.page) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.8)';
+                  e.currentTarget.style.background = 'var(--border-color)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
                 }
               }}
               onMouseLeave={e => {
                 if (activePage !== item.page) {
                   e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.45)';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
                 }
               }}
             >
@@ -190,11 +183,8 @@ function Dashboard() {
               {item.label}
               {activePage === item.page && (
                 <span style={{
-                  marginLeft: 'auto',
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: '#c9a227'
+                  marginLeft: 'auto', width: '6px', height: '6px',
+                  borderRadius: '50%', background: '#c9a227'
                 }} />
               )}
             </button>
@@ -202,27 +192,15 @@ function Dashboard() {
         </div>
 
         {/* Sign Out */}
-        <div style={{
-          padding: '16px 12px',
-          borderTop: '0.5px solid rgba(255,255,255,0.08)'
-        }}>
+        <div style={{ padding: '16px 12px', borderTop: '0.5px solid var(--border-color)' }}>
           <button
             onClick={handleSignOut}
             style={{
-              width: '100%',
-              padding: '12px 16px',
-              marginBottom: '24px',
-              background: 'transparent',
-              border: '1px solid rgba(226,75,74,0.4)',
-              borderRadius: '8px',
-              color: '#e24b4a',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
+              width: '100%', padding: '12px 16px', marginBottom: '24px',
+              background: 'transparent', border: '1px solid rgba(226,75,74,0.4)',
+              borderRadius: '8px', color: '#e24b4a', fontSize: '14px',
+              fontWeight: '500', cursor: 'pointer', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', gap: '8px',
               transition: 'background 0.12s'
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(226,75,74,0.1)'}
@@ -236,17 +214,17 @@ function Dashboard() {
             Sign out
           </button>
         </div>
-
       </div>
 
       <div className="content">
         {loading ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'white' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             Loading...
           </div>
         ) : (
           <>
-            {activePage === 'home' && <ChatBot students={students} />}
+            {/* ← allStudentData for accurate hours, onToggleTheme for chat toggle */}
+            {activePage === 'home' && <ChatBot students={allStudentData} onToggleTheme={toggleMode} />}
             {activePage === 'students' && <StudentsPage students={students} clockedIn={clockedIn} refreshStudents={fetchStudents} refreshClockedIn={fetchClockedIn} />}
             {activePage === 'attendance' && <AttendancePage students={students} clockedIn={clockedIn} />}
             {activePage === 'reports' && <ReportsPage students={students} clockedIn={clockedIn} />}
