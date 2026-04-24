@@ -97,29 +97,43 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
       setEntryMessage('❌ ' + data.error);
     }
   }
+
   async function handleDeleteEntry(id) {
     if (!window.confirm('Delete this entry?')) return;
     const res = await fetch(`${process.env.REACT_APP_API_URL}/delete-entry/${id}`, {
       method: 'DELETE'
     });
-    if (res.ok) {
-      fetchHistory(); // refresh table
-    }
+    if (res.ok) { fetchHistory(); }
   }
 
+  // ✅ Timezone fix — append Z so JS treats as UTC and converts to user's local time
   function formatTime(dateTimeStr) {
     if (!dateTimeStr) return '—';
-    return new Date(dateTimeStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const utcStr = dateTimeStr.replace(' ', 'T') + 'Z';
+    return new Date(utcStr).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
   }
 
+  // ✅ Timezone fix for date
   function formatDate(dateStr) {
     if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const utcStr = dateStr.includes('T') ? dateStr + 'Z' : dateStr + 'T00:00:00Z';
+    return new Date(utcStr).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   }
 
+  // ✅ Timezone fix for hours calculation
   function calculateHours(clockIn, clockOut) {
     if (!clockOut) return 'In progress';
-    return ((new Date(clockOut) - new Date(clockIn)) / 1000 / 60 / 60).toFixed(2) + ' hrs';
+    const inUtc = new Date(clockIn.replace(' ', 'T') + 'Z');
+    const outUtc = new Date(clockOut.replace(' ', 'T') + 'Z');
+    return ((outUtc - inUtc) / 1000 / 60 / 60).toFixed(2) + ' hrs';
   }
 
   function calculateWeeklyTotal() {
@@ -132,9 +146,10 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     endOfWeek.setHours(23, 59, 59, 999);
     return history.reduce((sum, log) => {
       if (!log.clock_out) return sum;
-      const clockIn = new Date(log.clock_in);
+      const clockIn = new Date(log.clock_in.replace(' ', 'T') + 'Z');
+      const clockOut = new Date(log.clock_out.replace(' ', 'T') + 'Z');
       if (clockIn >= startOfWeek && clockIn <= endOfWeek) {
-        return sum + (new Date(log.clock_out) - clockIn) / 1000 / 60 / 60;
+        return sum + (clockOut - clockIn) / 1000 / 60 / 60;
       }
       return sum;
     }, 0).toFixed(2);
@@ -154,20 +169,18 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
           background: 'var(--bg-secondary)',
           color: 'var(--text-primary)',
           cursor: 'pointer', fontWeight: '600', fontSize: '14px'
-        }}>
-          ← Back
-        </button>
+        }}>← Back</button>
         <button onClick={handleDeleteStudent} style={{
           padding: '10px 20px', borderRadius: '8px', border: 'none',
           cursor: 'pointer', backgroundColor: '#e74c3c',
           color: 'white', fontWeight: '600', fontSize: '14px'
-        }}>
-          🗑️ Delete Student
-        </button>
+        }}>🗑️ Delete Student</button>
       </div>
 
       {/* Student Info */}
-      <h1 style={{ color: 'var(--text-primary)' }}>{student.first_name} {student.last_name}</h1>
+      <h1 style={{ color: 'var(--text-primary)' }}>
+        {student.first_name} {student.middle_name ? student.middle_name[0].toUpperCase() + '. ' : ''}{student.last_name}
+      </h1>
       <p style={{ color: 'var(--text-muted)' }}>Student ID: {student.student_id}</p>
       <p style={{ color: 'var(--text-muted)' }}>Email: {student.email}</p>
       <p style={{ color: 'var(--text-muted)' }}>Status: {student.status}</p>
@@ -251,57 +264,54 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
       )}
 
       {/* History Table */}
-<table className="history-table">
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Clock In</th>
-      <th>Clock Out</th>
-      <th>Total Hours</th>
-      <th>Status</th>
-      <th></th>  {/* ← add this empty header */}
-    </tr>
-  </thead>
-  
-  <tbody>
-  {history.map(log => (
-  <tr key={log.id} style={{ position: 'relative' }}>
-    <td>{formatDate(log.date)}</td>
-    <td>{formatTime(log.clock_in)}</td>
-    <td>{formatTime(log.clock_out)}</td>
-    <td>{calculateHours(log.clock_in, log.clock_out)}</td>
-    <td>{log.clock_out ? '✅ Done' : '🟢 Active'}</td>
-    <td style={{ width: '30px', padding: '0' }}>
-      <button
-        onClick={() => handleDeleteEntry(log.id)}
-        style={{
-          position: 'absolute',
-          top: '4px',
-          right: '4px',
-          background: 'rgba(231,76,60,0.15)',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#e74c3c',
-          fontSize: '11px',
-          fontWeight: 'bold',
-          width: '18px',
-          height: '18px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          lineHeight: 1
-        }}
-        onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.3)'}
-        onMouseLeave={e => e.currentTarget.style.background = 'rgba(231,76,60,0.15)'}
-        title="Delete entry"
-      >
-        ✕
-      </button>
-    </td>
-  </tr>
-))}
-      </tbody>
+      <table className="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Clock In</th>
+            <th>Clock Out</th>
+            <th>Total Hours</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {history.map(log => (
+            <tr key={log.id} style={{ position: 'relative' }}>
+              <td>{formatDate(log.date)}</td>
+              <td>{formatTime(log.clock_in)}</td>
+              <td>{formatTime(log.clock_out)}</td>
+              <td>{calculateHours(log.clock_in, log.clock_out)}</td>
+              <td>{log.clock_out ? '✅ Done' : '🟢 Active'}</td>
+              <td style={{ width: '30px', padding: '0' }}>
+                <button
+                  onClick={() => handleDeleteEntry(log.id)}
+                  style={{
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    background: 'rgba(231,76,60,0.15)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#e74c3c',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.3)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(231,76,60,0.15)'}
+                  title="Delete entry"
+                >✕</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
