@@ -9,16 +9,13 @@ from dotenv import load_dotenv
 import anthropic
 import json
 import os
+import pytz
 
 load_dotenv()
 
 app = Flask(__name__)
 
-
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-
-
-
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 
 db = SQLAlchemy(app)
@@ -27,12 +24,22 @@ jwt = JWTManager(app)
 
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+# ✅ Eastern timezone helpers
+eastern = pytz.timezone('America/New_York')
+
+def now_eastern():
+    return datetime.now(eastern).replace(tzinfo=None)
+
+def today_eastern():
+    return datetime.now(eastern).date()
+
 @app.after_request
 def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
     return response
+
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -72,6 +79,7 @@ def login():
         return jsonify({'error': 'Invalid email or password'}), 401
     token = create_access_token(identity=email)
     return jsonify({'token': token}), 200
+
 @app.route('/login', methods=['OPTIONS'])
 def login_options():
     response = jsonify({'status': 'ok'})
@@ -79,6 +87,7 @@ def login_options():
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     return response, 200
+
 @app.route('/create-teacher', methods=['POST'])
 def create_teacher():
     data = request.get_json()
@@ -99,7 +108,7 @@ def update_password():
     return jsonify({'message': 'Password updated!'}), 200
 
 def get_status(graduation_year):
-    current_year = datetime.now().year
+    current_year = now_eastern().year
     diff = graduation_year - current_year
     if diff <= 0:
         return 'alumni'
@@ -111,7 +120,7 @@ def get_status(graduation_year):
         return 'sophomore'
     else:
         return 'freshman'
-    
+
 @app.route('/add-student', methods=['POST'])
 def add_student():
     data = request.get_json()
@@ -122,7 +131,6 @@ def add_student():
     last_name = data['last_name'].strip()
     middle_name = (data.get('middle_name') or '').strip() or None
 
-    # Check for duplicate first + last name
     duplicate = Student.query.filter_by(
         first_name=first_name,
         last_name=last_name
@@ -134,7 +142,6 @@ def add_student():
             'message': f'A student named {first_name} {last_name} already exists. Please provide a middle name.'
         }), 409
 
-    # Generate ID (existing logic stays the same)
     first = first_name[0].upper()
     last = last_name[0].upper()
     year = str(int(data['graduation_year']))[-2:]
@@ -147,7 +154,7 @@ def add_student():
     student = Student(
         student_id=student_id,
         first_name=first_name,
-        middle_name=middle_name,  # ← add this
+        middle_name=middle_name,
         last_name=last_name,
         email=data['email'],
         graduation_year=data['graduation_year'],
@@ -183,8 +190,8 @@ def clock_in():
         return jsonify({'error': 'Student already clocked in!'}), 400
     log = TimeLog(
         student_id=student_id,
-        clock_in=datetime.now(),
-        date=date.today()
+        clock_in=now_eastern(),     # ✅ Eastern time
+        date=today_eastern()        # ✅ Eastern date
     )
     db.session.add(log)
     db.session.commit()
@@ -197,7 +204,7 @@ def clock_out():
     log = TimeLog.query.filter_by(student_id=student_id, clock_out=None).first()
     if not log:
         return jsonify({'error': 'No active clock in found'}), 404
-    log.clock_out = datetime.now()
+    log.clock_out = now_eastern()   # ✅ Eastern time
     db.session.commit()
     return jsonify({'message': 'Clocked out!'}), 200
 
@@ -220,7 +227,7 @@ def clocked_in_students():
 def all_student_data():
     students = Student.query.all()
     result = []
-    now = datetime.now()
+    now = now_eastern()                                         # ✅ Eastern time
     start_of_this_week = now - timedelta(days=now.weekday())
     start_of_this_week = start_of_this_week.replace(hour=0, minute=0, second=0)
     start_of_last_week = start_of_this_week - timedelta(days=7)
@@ -257,13 +264,12 @@ def chat():
     data = request.get_json()
     messages = data.get('messages')
     students = data.get('students')
-    
+
     if not messages or not isinstance(messages, list) or len(messages) == 0:
         return jsonify({'error': 'messages are required'}), 400
 
     client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
-    now = datetime.now()
-    current_week_start = now - timedelta(days=now.weekday())
+    now = now_eastern()                                         # ✅ Eastern time
 
     response = client.messages.create(
         model='claude-opus-4-5',
@@ -309,7 +315,7 @@ def chat():
             log = TimeLog.query.filter_by(student_id=student_id, clock_out=None).first()
             if not log:
                 return jsonify({'response': f"❌ {student_id} is not currently clocked in!"})
-            log.clock_out = datetime.now()
+            log.clock_out = now_eastern()                       # ✅ Eastern time
             db.session.commit()
             return jsonify({'response': f"🔴 Successfully clocked out **{student_id}**!"})
         except Exception as e:
@@ -328,16 +334,18 @@ def chat():
                 return jsonify({'response': f"⚠️ **{student.first_name} {student.last_name}** is already clocked in!"})
             log = TimeLog(
                 student_id=student_id,
-                clock_in=datetime.now(),
-                date=date.today()
+                clock_in=now_eastern(),                         # ✅ Eastern time
+                date=today_eastern()                            # ✅ Eastern date
             )
             db.session.add(log)
             db.session.commit()
             return jsonify({'response': f"🟢 Successfully clocked in **{student.first_name} {student.last_name}** ({student_id})!"})
         except Exception as e:
             return jsonify({'response': f"❌ Error clocking in: {str(e)}"})
+
     if 'TOGGLE_THEME' in response_text:
         return jsonify({'response': '🎨 Theme toggled!', 'action': 'TOGGLE_THEME'})
+
     return jsonify({'response': response_text})
 
 @app.route('/attendance-data', methods=['GET'])
@@ -374,14 +382,13 @@ def erase_timelogs():
     db.session.commit()
     return jsonify({'message': 'All time logs erased successfully!'}), 200
 
-
 @app.route('/manual-clock', methods=['POST'])
 def manual_clock():
     data = request.get_json()
     student_id = data.get('student_id')
     clock_in_str = data.get('clock_in')
     clock_out_str = data.get('clock_out')
-    date_str = date.today().strftime('%Y-%m-%d')
+    date_str = today_eastern().strftime('%Y-%m-%d')             # ✅ Eastern date
 
     if not student_id or not clock_in_str or not clock_out_str:
         return jsonify({'error': 'All fields are required'}), 400
@@ -405,13 +412,14 @@ def manual_clock():
 
 @app.route('/delete-student/<student_id>', methods=['DELETE'])
 def delete_student(student_id):
-    student = Student.query.filter_by(student_id = student_id).first()
+    student = Student.query.filter_by(student_id=student_id).first()
     if not student:
         return jsonify({'error': 'Student not found'}), 404
     TimeLog.query.filter_by(student_id=student_id).delete()
     db.session.delete(student)
     db.session.commit()
-    return jsonify({'message' : 'Student deleted!'}) , 200
+    return jsonify({'message': 'Student deleted!'}), 200
+
 @app.route('/delete-entry/<int:id>', methods=['DELETE'])
 def delete_entry(id):
     log = TimeLog.query.get(id)

@@ -84,7 +84,12 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/manual-clock`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ student_id: student.student_id, date: today, clock_in: entryClockIn, clock_out: entryClockOut })
+      body: JSON.stringify({
+        student_id: student.student_id,
+        date: today,
+        clock_in: entryClockIn,
+        clock_out: entryClockOut
+      })
     });
     const data = await res.json();
     if (res.ok) {
@@ -106,34 +111,28 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     if (res.ok) { fetchHistory(); }
   }
 
-  // ✅ Timezone fix — append Z so JS treats as UTC and converts to user's local time
+  // ✅ No Z needed — backend now stores Eastern time directly
   function formatTime(dateTimeStr) {
     if (!dateTimeStr) return '—';
-    const utcStr = dateTimeStr.replace(' ', 'T') + 'Z';
-    return new Date(utcStr).toLocaleTimeString('en-US', {
+    return new Date(dateTimeStr).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
     });
   }
 
-  // ✅ Timezone fix for date
   function formatDate(dateStr) {
     if (!dateStr) return '—';
-    const utcStr = dateStr.includes('T') ? dateStr + 'Z' : dateStr + 'T00:00:00Z';
-    return new Date(utcStr).toLocaleDateString('en-US', {
+    return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
   }
 
-  // ✅ Timezone fix for hours calculation
   function calculateHours(clockIn, clockOut) {
     if (!clockOut) return 'In progress';
-    const inUtc = new Date(clockIn.replace(' ', 'T') + 'Z');
-    const outUtc = new Date(clockOut.replace(' ', 'T') + 'Z');
-    return ((outUtc - inUtc) / 1000 / 60 / 60).toFixed(2) + ' hrs';
+    return ((new Date(clockOut) - new Date(clockIn)) / 1000 / 60 / 60).toFixed(2) + ' hrs';
   }
 
   function calculateWeeklyTotal() {
@@ -146,8 +145,8 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
     endOfWeek.setHours(23, 59, 59, 999);
     return history.reduce((sum, log) => {
       if (!log.clock_out) return sum;
-      const clockIn = new Date(log.clock_in.replace(' ', 'T') + 'Z');
-      const clockOut = new Date(log.clock_out.replace(' ', 'T') + 'Z');
+      const clockIn = new Date(log.clock_in);
+      const clockOut = new Date(log.clock_out);
       if (clockIn >= startOfWeek && clockIn <= endOfWeek) {
         return sum + (clockOut - clockIn) / 1000 / 60 / 60;
       }
@@ -277,13 +276,13 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
         </thead>
         <tbody>
           {history.map(log => (
-            <tr key={log.id} >
+            <tr key={log.id}>
               <td>{formatDate(log.date)}</td>
               <td>{formatTime(log.clock_in)}</td>
               <td>{formatTime(log.clock_out)}</td>
               <td>{calculateHours(log.clock_in, log.clock_out)}</td>
               <td>{log.clock_out ? '✅ Done' : '🟢 Active'}</td>
-              <td style={{ width: '30px', padding: '0' }}>
+              <td style={{ textAlign: 'center', width: '40px' }}>
                 <button
                   onClick={() => handleDeleteEntry(log.id)}
                   style={{
