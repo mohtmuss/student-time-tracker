@@ -10,10 +10,11 @@ function ClockIn() {
   useEffect(() => {
     function updateClock() {
       const now = new Date();
-      const h = String(now.getHours()).padStart(2, '0');
+      const h = String(now.getHours() % 12 || 12).padStart(2, '0');
       const m = String(now.getMinutes()).padStart(2, '0');
       const s = String(now.getSeconds()).padStart(2, '0');
-      setTime(`${h}:${m}:${s}`);
+      const ampm = now.getHours() >= 12 ? 'PM' : 'AM'
+      setTime(`${h}:${m}:${s} ${ampm}`);
       setDateStr(now.toLocaleDateString('en-US', {
         weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
       }));
