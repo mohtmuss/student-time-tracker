@@ -277,7 +277,7 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
         </thead>
         <tbody>
           {history.map(log => (
-            <tr key={log.id} style={{ position: 'relative' }}>
+            <tr key={log.id} >
               <td>{formatDate(log.date)}</td>
               <td>{formatTime(log.clock_in)}</td>
               <td>{formatTime(log.clock_out)}</td>
@@ -287,22 +287,18 @@ function StudentProfile({ student, onBack, refreshClockedIn }) {
                 <button
                   onClick={() => handleDeleteEntry(log.id)}
                   style={{
-                    position: 'absolute',
-                    top: '4px',
-                    right: '4px',
                     background: 'rgba(231,76,60,0.15)',
                     border: 'none',
                     cursor: 'pointer',
                     color: '#e74c3c',
                     fontSize: '11px',
                     fontWeight: 'bold',
-                    width: '18px',
-                    height: '18px',
+                    width: '20px',
+                    height: '20px',
                     borderRadius: '50%',
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    lineHeight: 1
                   }}
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(231,76,60,0.3)'}
                   onMouseLeave={e => e.currentTarget.style.background = 'rgba(231,76,60,0.15)'}
