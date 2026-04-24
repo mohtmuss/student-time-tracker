@@ -41,6 +41,7 @@ class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.String(10), unique=True, nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
+    middle_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     graduation_year = db.Column(db.Integer, nullable=False)
@@ -109,23 +110,44 @@ def get_status(graduation_year):
         return 'sophomore'
     else:
         return 'freshman'
+    
 @app.route('/add-student', methods=['POST'])
 def add_student():
     data = request.get_json()
     if not data.get('first_name') or not data.get('last_name') or not data.get('email') or not data.get('graduation_year'):
         return jsonify({'error': 'All fields are required'}), 400
-    first = data['first_name'][0].upper()
-    last = data['last_name'][0].upper()
+
+    first_name = data['first_name'].strip()
+    last_name = data['last_name'].strip()
+    middle_name = (data.get('middle_name') or '').strip() or None
+
+    # Check for duplicate first + last name
+    duplicate = Student.query.filter_by(
+        first_name=first_name,
+        last_name=last_name
+    ).first()
+
+    if duplicate and not middle_name:
+        return jsonify({
+            'error': 'duplicate',
+            'message': f'A student named {first_name} {last_name} already exists. Please provide a middle name.'
+        }), 409
+
+    # Generate ID (existing logic stays the same)
+    first = first_name[0].upper()
+    last = last_name[0].upper()
     year = str(int(data['graduation_year']))[-2:]
     student_id = first + last + year
     existing = Student.query.filter_by(student_id=student_id).first()
     if existing:
         count = Student.query.filter(Student.student_id.like(student_id + '%')).count()
         student_id = student_id + str(count + 1)
+
     student = Student(
         student_id=student_id,
-        first_name=data['first_name'],
-        last_name=data['last_name'],
+        first_name=first_name,
+        middle_name=middle_name,  # ← add this
+        last_name=last_name,
         email=data['email'],
         graduation_year=data['graduation_year'],
         status=get_status(int(data['graduation_year']))
@@ -133,6 +155,7 @@ def add_student():
     db.session.add(student)
     db.session.commit()
     return jsonify({'message': 'Student added!', 'student_id': student_id}), 201
+
 @app.route('/students', methods=['GET'])
 def get_students():
     students = Student.query.all()
@@ -140,6 +163,7 @@ def get_students():
         'id': s.id,
         'student_id': s.student_id,
         'first_name': s.first_name,
+        'middle_name': s.middle_name,
         'last_name': s.last_name,
         'email': s.email,
         'graduation_year': s.graduation_year,
@@ -207,13 +231,13 @@ def all_student_data():
         last_week_hours = 0
         for log in logs:
             if log.clock_in and log.clock_out:
-                hours = (log.clock_out - log.clock_in).seconds / 3600
+                hours = (log.clock_out - log.clock_in).total_seconds() / 3600
                 if log.clock_in >= start_of_this_week:
                     this_week_hours += hours
                 elif log.clock_in >= start_of_last_week and log.clock_in < end_of_last_week:
                     last_week_hours += hours
         result.append({
-            'name': s.first_name + ' ' + s.last_name,
+            'name': f"{s.first_name} {s.middle_name[0].upper() + '. ' if s.middle_name else ''}{s.last_name}",
             'student_id': s.student_id,
             'status': s.status,
             'graduation_year': s.graduation_year,
@@ -232,6 +256,9 @@ def chat():
     data = request.get_json()
     messages = data.get('messages')
     students = data.get('students')
+    
+    if not messages or not isinstance(messages, list) or len(messages) == 0:
+        return jsonify({'error': 'messages are required'}), 400
 
     client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
     now = datetime.now()
@@ -265,6 +292,9 @@ ADD_STUDENT:{{"first_name": "John", "last_name": "Smith", "email": "john@school.
 CLOCK_OUT:{{"student_id": "MM26"}}
 4. CLOCK IN a student - respond with ONLY:
 CLOCK_IN:{{"student_id": "MM26"}}
+5. TOGGLE the theme/mode between dark and light - respond with ONLY:
+TOGGLE_THEME
+
 
 You ONLY know about student data and time tracking.
 If asked about anything unrelated respond with:
@@ -338,7 +368,8 @@ Be helpful, concise and professional.""",
             return jsonify({'response': f"🟢 Successfully clocked in **{student.first_name} {student.last_name}** ({student_id})!"})
         except Exception as e:
             return jsonify({'response': f"❌ Error clocking in: {str(e)}"})
-
+    if 'TOGGLE_THEME' in response_text:
+        return jsonify({'response': '🎨 Theme toggled!', 'action': 'TOGGLE_THEME'})
     return jsonify({'response': response_text})
 
 @app.route('/attendance-data', methods=['GET'])
@@ -349,7 +380,7 @@ def attendance_data():
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     for log in logs:
         if log.clock_in and log.clock_out:
-            diff = (log.clock_out - log.clock_in).seconds / 3600
+            diff = (log.clock_out - log.clock_in).total_seconds() / 3600
             day_hours[days[log.clock_in.weekday()]] += diff
     return jsonify({'day_data': [{'day': day, 'hours': round(day_hours[day], 2)} for day in days]})
 
@@ -360,7 +391,7 @@ def student_weekly_progress(student_id):
     weekly_hours = defaultdict(float)
     for log in logs:
         if log.clock_in and log.clock_out:
-            diff = (log.clock_out - log.clock_in).seconds / 3600
+            diff = (log.clock_out - log.clock_in).total_seconds() / 3600
             week = log.clock_in.strftime('Week %U')
             weekly_hours[week] += diff
     sorted_weeks = sorted(weekly_hours.keys())
@@ -403,6 +434,24 @@ def manual_clock():
     db.session.add(log)
     db.session.commit()
     return jsonify({'message': 'Entry added!'}), 200
+
+@app.route('/delete-student/<student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    student = Student.query.filter_by(student_id = student_id).first()
+    if not student:
+        return jsonify({'error': 'Student not found'}), 404
+    TimeLog.query.filter_by(student_id=student_id).delete()
+    db.session.delete(student)
+    db.session.commit()
+    return jsonify({'message' : 'Student deleted!'}) , 200
+@app.route('/delete-entry/<int:id>', methods=['DELETE'])
+def delete_entry(id):
+    log = TimeLog.query.get(id)
+    if not log:
+        return jsonify({'error': 'Entry not found'}), 404
+    db.session.delete(log)
+    db.session.commit()
+    return jsonify({'message': 'Entry deleted!'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
